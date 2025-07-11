@@ -89,6 +89,7 @@ celerybeat.pid
 .venv
 env/
 venv/
+/makeRecipe/secret.py
 ENV/
 env.bak/
 venv.bak/
