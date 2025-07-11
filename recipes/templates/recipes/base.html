@@ -3,9 +3,30 @@
 <html>
 <head>
     <title>Recipe App</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <style>
+        nav {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        nav a {
+            margin-right: 15px;
+            text-decoration: none;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
+    <nav>
+        <a href="{% url 'recipe_list' %}">Home</a>
+        <a href="{% url 'add_recipe' %}">Add Recipe</a>
+        <a href="{% url 'create_shopping_list' %}">Shopping List</a>
+        <a href="{% url 'manage_ingredients' %}">Ingredients</a>
+    </nav>
     {% block content %}
     {% endblock %}
 </body>

@@ -1,0 +1,46 @@
+{% extends 'recipes/base.html' %}
+
+{% load recipes_tags %}
+
+{% block content %}
+    <div class="container my-4">
+        <h1 class="mb-4">Manage Ingredients</h1>
+
+        <div class="row">
+            <div class="col-md-6">
+                <h2 class="mb-3">Add New Ingredient</h2>
+                <form method="post" class="mb-4">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        {{ form.name.label_tag }}
+                        {{ form.name|add_class:"form-control" }}
+                        {% for error in form.name.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Ingredient</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <h2 class="mb-3">Existing Ingredients</h2>
+                {% if ingredients %}
+                    <ul class="list-group">
+                        {% for ingredient in ingredients %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ ingredient.name }}
+                                <form action="{% url 'delete_managed_ingredient' pk=ingredient.pk %}" method="post" onsubmit="return confirm('Are you sure you want to delete \'{{ ingredient.name }}\'? This will affect all recipes using this ingredient.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <div class="alert alert-info" role="alert">
+                        No managed ingredients found. Add some above!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

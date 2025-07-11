@@ -1,14 +1,20 @@
 {% extends 'recipes/base.html' %}
 
 {% block content %}
-    <h1>{{ recipe.title }}</h1>
-    <p>{{ recipe.description }}</p>
-    <p>Servings: {{ recipe.servings }}</p>
-    <h2>Ingredients</h2>
-    <ul>
-        {% for ingredient in recipe.ingredient_set.all %}
-            <li>{{ ingredient.quantity }} {{ ingredient.unit }} {{ ingredient.name }}</li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'scale_recipe' pk=recipe.pk %}">Scale Recipe</a>
+    <div class="container my-4">
+        <h1 class="mb-3">{{ recipe.title }}</h1>
+        <p class="lead">{{ recipe.description }}</p>
+        <p><strong>Servings:</strong> {{ recipe.servings }}</p>
+
+        <h2 class="mt-4 mb-3">Ingredients</h2>
+        <ul class="list-group mb-4">
+            {% for ingredient in recipe.ingredient_set.all %}
+                <li class="list-group-item">{{ ingredient.quantity }} {{ ingredient.unit }} {{ ingredient.name.name }}</li>
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'scale_recipe' pk=recipe.pk %}" class="btn btn-primary me-2">Scale Recipe</a>
+        <a href="{% url 'edit_recipe' pk=recipe.pk %}" class="btn btn-info me-2">Edit Recipe</a>
+        <a href="{% url 'recipe_list' %}" class="btn btn-secondary">Back to Recipes</a>
+    </div>
 {% endblock %}

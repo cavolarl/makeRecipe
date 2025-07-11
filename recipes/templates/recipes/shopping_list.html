@@ -1,0 +1,40 @@
+{% extends 'recipes/base.html' %}
+
+{% load recipes_tags %}
+
+{% block content %}
+    <div class="container my-4">
+        <h1 class="mb-4">Create Shopping List</h1>
+
+        <form method="post" class="mb-4">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.recipes.label_tag }}
+                <div class="form-check">
+                    {% for checkbox in form.recipes %}
+                        <div class="form-check">
+                            {{ checkbox.tag }}
+                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                {{ checkbox.choice_label }}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="mb-3">
+                {{ form.num_guests.label_tag }}
+                {{ form.num_guests|add_class:"form-control" }}
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Shopping List</button>
+        </form>
+
+        {% if shopping_list %}
+            <h2 class="mt-5 mb-3">Your Shopping List</h2>
+            <ul class="list-group">
+                {% for item in shopping_list %}
+                    <li class="list-group-item">{{ item.quantity|floatformat:2 }} {{ item.unit }} {{ item.name }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}

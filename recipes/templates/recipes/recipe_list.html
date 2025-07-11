@@ -1,11 +1,37 @@
 {% extends 'recipes/base.html' %}
 
 {% block content %}
-    <h1>Recipes</h1>
-    <ul>
-        {% for recipe in recipes %}
-            <li><a href="{% url 'recipe_detail' pk=recipe.pk %}">{{ recipe.title }}</a></li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'add_recipe' %}">Add Recipe</a>
+    <div class="container my-4">
+        <h1 class="mb-4">Recipes</h1>
+
+        {% if recipes %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for recipe in recipes %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title"><a href="{% url 'recipe_detail' pk=recipe.pk %}" class="text-decoration-none">{{ recipe.title }}</a></h5>
+                                <p class="card-text">{{ recipe.description|truncatechars:100 }}</p>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Servings: {{ recipe.servings }}</small>
+                                <form action="{% url 'delete_recipe' pk=recipe.pk %}" method="post" onsubmit="return confirm('Are you sure you want to delete \'{{ recipe.title }}\'?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info" role="alert">
+                No recipes found. Why not add one?
+            </div>
+        {% endif %}
+
+        <div class="mt-4">
+            <a href="{% url 'add_recipe' %}" class="btn btn-primary">Add New Recipe</a>
+        </div>
+    </div>
 {% endblock %}

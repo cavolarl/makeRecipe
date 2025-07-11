@@ -1,15 +1,117 @@
 {% extends 'recipes/base.html' %}
 
+{% load recipes_tags %}
+
 {% block content %}
-    <h1>Add Recipe</h1>
-    <form method="post">
-        {% csrf_token %}
-        <label for="title">Title:</label><br>
-        <input type="text" id="title" name="title"><br>
-        <label for="description">Description:</label><br>
-        <textarea id="description" name="description"></textarea><br>
-        <label for="servings">Servings:</label><br>
-        <input type="number" id="servings" name="servings"><br><br>
-        <input type="submit" value="Submit">
-    </form>
+    <div class="container">
+        <h2 class="my-4">Add New Recipe</h2>
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                {% for field in form %}
+                    <div class="mb-3">
+                        {{ field.label_tag }}
+                        {{ field|add_class:"form-control" }}
+                        {% if field.help_text %}
+                            <div class="form-text">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <h3 class="mt-4 mb-3">Ingredients</h3>
+            <div id="ingredient-formset-container">
+                {{ formset.management_form }}
+                {% for form in formset %}
+                    <div class="ingredient-form mb-3 p-3 border rounded bg-light">
+                        {{ form.id }}
+                        <div class="mb-3">
+                            {{ form.name.label_tag }}
+                            {{ form.name }}
+                            <input type="text" class="form-control autocomplete-ingredient" placeholder="Start typing ingredient name..." value="{% if form.instance.name %}{{ form.instance.name.name }}{% endif %}">
+                            {% if form.name.help_text %}
+                                <div class="form-text">{{ form.name.help_text }}</div>
+                            {% endif %}
+                            {% for error in form.name.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.quantity.label_tag }}
+                            {{ form.quantity|add_class:"form-control" }}
+                            {% if form.quantity.help_text %}
+                                <div class="form-text">{{ form.quantity.help_text }}</div>
+                            {% endif %}
+                            {% for error in form.quantity.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.unit.label_tag }}
+                            {{ form.unit|add_class:"form-control" }}
+                            {% if form.unit.help_text %}
+                                <div class="form-text">{{ form.unit.help_text }}</div>
+                            {% endif %}
+                            {% for error in form.unit.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {% if form.instance.pk %}
+                            <div class="form-check mt-2">
+                                {{ form.DELETE }}
+                                <label class="form-check-label" for="{{ form.DELETE.id_for_label }}">Delete</label>
+                            </div>
+                        {% endif %}
+                        <button type="button" class="btn btn-danger btn-sm remove-ingredient">Remove</button>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div id="empty-form" style="display: none;">
+                <div class="ingredient-form mb-3 p-3 border rounded bg-light">
+                    <div class="mb-3">
+                        {{ formset.empty_form.name.label_tag }}
+                        {{ formset.empty_form.name }}
+                        <input type="text" class="form-control autocomplete-ingredient" placeholder="Start typing ingredient name...">
+                        {% if formset.empty_form.name.help_text %}
+                            <div class="form-text">{{ formset.empty_form.name.help_text }}</div>
+                        {% endif %}
+                        {% for error in formset.empty_form.name.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ formset.empty_form.quantity.label_tag }}
+                        {{ formset.empty_form.quantity|add_class:"form-control" }}
+                        {% if formset.empty_form.quantity.help_text %}
+                            <div class="form-text">{{ formset.empty_form.quantity.help_text }}</div>
+                        {% endif %}
+                        {% for error in formset.empty_form.quantity.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        {{ formset.empty_form.unit.label_tag }}
+                        {{ formset.empty_form.unit|add_class:"form-control" }}
+                        {% if formset.empty_form.unit.help_text %}
+                            <div class="form-text">{{ formset.empty_form.unit.help_text }}</div>
+                        {% endif %}
+                        {% for error in formset.empty_form.unit.errors %}
+                            <div class="invalid-feedback d-block">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-ingredient">Remove</button>
+                </div>
+            </div>
+
+            <button type="button" id="add-ingredient" class="btn btn-secondary mt-3">Add Ingredient</button>
+            <button type="submit" class="btn btn-primary mt-3 ms-2">Add Recipe</button>
+        </form>
+    </div>
+
+    {% load static %}
+    <script src="{% static 'js/add_recipe.js' %}"></script>
 {% endblock %}
