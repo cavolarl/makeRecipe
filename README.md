@@ -14,13 +14,15 @@
 
 ## Setup and Installation for development
 
-1.  **Clone the repository**:
+1. **Clone the repository**:
+
     ```bash
     git clone <repository_url>
     cd makeRecipe
     ```
 
-2.  **Create and activate a virtual environment**:
+2. **Create and activate a virtual environment**:
+
     ```bash
     python -m venv venv
     # On Windows:
@@ -29,28 +31,32 @@
     source venv/bin/activate
     ```
 
-3.  **Install dependencies**:
+3. **Install dependencies**:
+
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  **Apply database migrations**:
+4. **Apply database migrations**:
+
     ```bash
     python manage.py makemigrations
     python manage.py migrate
     ```
 
-5.  **Collect static files**:
+5. **Collect static files**:
+
     ```bash
     python manage.py collectstatic
     ```
 
-6.  **Run the development server**:
+6. **Run the development server**:
+
     ```bash
     python manage.py runserver
     ```
 
-7.  **Access the application**: Open your web browser and go to `http://127.0.0.1:8000/recipes/`
+7. **Access the application**: Open your web browser and go to `http://127.0.0.1:8000/recipes/`
 
 ## Usage
 
