@@ -30,11 +30,111 @@
 
         {% if shopping_list %}
             <h2 class="mt-5 mb-3">Your Shopping List</h2>
-            <ul class="list-group">
+            <ul class="list-group" id="shopping-list-container">
                 {% for item in shopping_list %}
-                    <li class="list-group-item">{{ item.quantity|floatformat:2 }} {{ item.unit }} {{ item.name }}</li>
+                    <li class="list-group-item" 
+                        data-original-quantity="{{ item.quantity }}" 
+                        data-original-unit="{{ item.unit }}"
+                        data-conversion-factor="{{ item.managed_ingredient.weight_to_volume_conversion|default_if_none:'0' }}">
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="quantity">{{ item.quantity|floatformat:2 }}</span>
+                                <span class="unit">{{ item.unit }}</span>
+                                <span class="name">{{ item.name }}</span>
+                                
+                                {% if item.managed_ingredient.container_sizes %}
+                                    <small class="text-muted ms-2">
+                                        (Containers: {{ item.managed_ingredient.container_sizes|join:", " }}g/ml)
+                                    </small>
+                                {% endif %}
+                            </div>
+                            
+                            {% if item.managed_ingredient.weight_to_volume_conversion %}
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-secondary convert-unit" data-target-unit-type="volume">Volume</button>
+                                <button type="button" class="btn btn-outline-secondary convert-unit" data-target-unit-type="weight">Weight</button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </li>
                 {% endfor %}
             </ul>
         {% endif %}
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const shoppingListContainer = document.getElementById('shopping-list-container');
+
+        if (shoppingListContainer) {
+            shoppingListContainer.addEventListener('click', function(event) {
+                if (event.target.classList.contains('convert-unit')) {
+                    const button = event.target;
+                    const listItem = button.closest('.list-group-item');
+                    const targetUnitType = button.dataset.targetUnitType;
+
+                    const originalQuantity = parseFloat(listItem.dataset.originalQuantity);
+                    const originalUnit = listItem.dataset.originalUnit;
+                    const conversionFactor = parseFloat(listItem.dataset.conversionFactor);
+
+                    const quantitySpan = listItem.querySelector('.quantity');
+                    const unitSpan = listItem.querySelector('.unit');
+
+                    const isWeightUnit = ['g', 'kg'].includes(originalUnit.toLowerCase());
+                    const isVolumeUnit = ['ml', 'l', 'liter', 'dl', 'cl', 'tsk', 'msk', 'krm'].includes(originalUnit.toLowerCase());
+
+                    if (conversionFactor === 0) {
+                        alert('No conversion factor available for this ingredient.');
+                        return;
+                    }
+
+                    let newQuantity = originalQuantity;
+                    let newUnit = originalUnit;
+
+                    // Convert to base units (g or ml) first for simplicity
+                    let baseQuantity = originalQuantity;
+                    // Weight to base (g)
+                    if (originalUnit.toLowerCase() === 'kg') baseQuantity *= 1000;
+                    // Volume to base (ml)
+                    if (originalUnit.toLowerCase() === 'l' || originalUnit.toLowerCase() === 'liter') baseQuantity *= 1000;
+                    if (originalUnit.toLowerCase() === 'dl') baseQuantity *= 100;
+                    if (originalUnit.toLowerCase() === 'cl') baseQuantity *= 10;
+                    if (originalUnit.toLowerCase() === 'msk') baseQuantity *= 15;
+                    if (originalUnit.toLowerCase() === 'tsk') baseQuantity *= 5;
+                    if (originalUnit.toLowerCase() === 'krm') baseQuantity *= 1;
+
+
+                    if (targetUnitType === 'weight' && isVolumeUnit) {
+                        // Convert from volume (ml) to weight (g)
+                        newQuantity = baseQuantity * conversionFactor;
+                        newUnit = 'g';
+                    } else if (targetUnitType === 'volume' && isWeightUnit) {
+                        // Convert from weight (g) to volume (ml)
+                        newQuantity = baseQuantity / conversionFactor;
+                        newUnit = 'ml';
+                    } else {
+                        // Already the correct type, or no conversion needed, revert to original
+                        newQuantity = originalQuantity;
+                        newUnit = originalUnit;
+                    }
+                    
+                    // Logic to select a "nice" unit (e.g., >1000g -> kg)
+                    if (newUnit === 'g' && newQuantity >= 1000) {
+                        newQuantity /= 1000;
+                        newUnit = 'kg';
+                    }
+                    if (newUnit === 'ml' && newQuantity >= 1000) {
+                        newQuantity /= 1000;
+                        newUnit = 'l';
+                    }
+
+                    quantitySpan.textContent = newQuantity.toFixed(2).replace(/\.00$/, '');
+                    unitSpan.textContent = newUnit;
+                }
+            });
+        }
+    });
+    </script>
+
 {% endblock %}

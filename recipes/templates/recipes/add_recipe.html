@@ -5,6 +5,19 @@
 {% block content %}
     <div class="container">
         <h2 class="my-4">Add New Recipe</h2>
+        
+        <!-- Scraper Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Scrape Recipe from URL</h5>
+                <div class="input-group">
+                    <input type="text" id="recipe-url" class="form-control" placeholder="Enter recipe URL...">
+                    <button id="scrape-button" class="btn btn-primary" type="button">Scrape</button>
+                </div>
+                <div id="scraper-status" class="form-text mt-2"></div>
+            </div>
+        </div>
+
         <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
             <div class="mb-3">
@@ -114,4 +127,5 @@
 
     {% load static %}
     <script src="{% static 'js/add_recipe.js' %}"></script>
+    <script src="{% static 'js/scrape.js' %}"></script>
 {% endblock %}
