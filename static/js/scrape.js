@@ -46,13 +46,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const nameInput = newForm.querySelector('[id$="-name"]');
             const quantityInput = newForm.querySelector('[id$="-quantity"]');
             const unitInput = newForm.querySelector('[id$="-unit"]');
-            const autocompleteInput = newForm.querySelector('.autocomplete-ingredient');
 
-            // We can't set the value of the hidden select directly, 
-            // but we can create a new managed ingredient or find an existing one.
-            // For now, we'll just fill the autocomplete field and let the user select.
-            if (autocompleteInput) {
-                autocompleteInput.value = ingredient.name;
+            if (nameInput) {
+                nameInput.value = ingredient.name; // This is now the ManagedIngredient ID
             }
             if (quantityInput) {
                 quantityInput.value = ingredient.quantity;
