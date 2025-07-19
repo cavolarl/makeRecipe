@@ -30,4 +30,5 @@ COPY . .
 EXPOSE 8000
 
 # Set entrypoint
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "makeRecipe.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--log-level", "debug", "makeRecipe.wsgi"]
+

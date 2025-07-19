@@ -93,6 +93,7 @@ venv.bak/
 
 # Secrets
 /makeRecipe/secret.py
+appliku.yml
 
 # IDEs / editors
 .idea/
