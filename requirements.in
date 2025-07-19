@@ -1,0 +1,15 @@
+asgiref
+django
+gunicorn
+packaging
+psycopg2-binary
+sqlparse
+typing-extensions
+python-dotenv
+django-bootstrap5
+whitenoise
+django-redis
+requests
+django-environ
+beautifulsoup4
+django-debug-toolbar
