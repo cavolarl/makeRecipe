@@ -37,11 +37,6 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 # SECURITY WARNING: keep the secret key used in production secret!
 # The SECRET_KEY is imported from secret.py
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
