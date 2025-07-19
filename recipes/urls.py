@@ -14,5 +14,4 @@ urlpatterns = [
     path('ingredients/delete/<int:pk>/', views.delete_managed_ingredient, name='delete_managed_ingredient'),
     path('ingredients/autocomplete/', views.ingredient_autocomplete, name='ingredient_autocomplete'),
     path('scrape-recipe/', views.scrape_recipe, name='scrape_recipe'),
-    path('admin/', admin.site.urls),
 ]
