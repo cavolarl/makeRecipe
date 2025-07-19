@@ -1,3 +1,3 @@
 #!/bin/bash
 set -e
-gunicorn project.wsgi --log-file -
+gunicorn makeRecipe.wsgi --bind 0.0.0.0:8000 --log-file -

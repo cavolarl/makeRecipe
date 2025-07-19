@@ -37,11 +37,6 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
 # SECURITY WARNING: keep the secret key used in production secret!
 # The SECRET_KEY is imported from secret.py
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -160,5 +155,5 @@ WHITENOISE_AUTOREFRESH = DEBUG
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_ROOT = env("MEDIA_ROOT", default=BASE_DIR / "media")  
+MEDIA_ROOT = env("MEDIA", default=BASE_DIR / "media")  
 MEDIA_URL = env("MEDIA_PATH", default="/media/")
