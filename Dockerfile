@@ -26,6 +26,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Copy application code
 COPY . .
 
+# Run migrations
+RUN python manage.py migrate
+
 # Expose port
 EXPOSE 8000
 
