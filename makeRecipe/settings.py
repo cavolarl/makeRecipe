@@ -11,10 +11,24 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from .secret import SECRET_KEY
+import environ
+import os
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+SECRET_KEY = env("SECRET_KEY", default="change_me")
+
+DEBUG = env("DEBUG", default=False)
+
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["*"])
+
+# Take environment variables from .env file
 
 
 # Quick-start development settings - unsuitable for production
@@ -42,15 +56,18 @@ INSTALLED_APPS = [
     "django_bootstrap5",
 ]
 
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+MIDDLEWARE = [  
+    "django.middleware.security.SecurityMiddleware",  
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",  
+    "django.contrib.sessions.middleware.SessionMiddleware",  
+    "django.middleware.common.CommonMiddleware",  
+    "django.middleware.csrf.CsrfViewMiddleware",  
+    "django.contrib.auth.middleware.AuthenticationMiddleware",  
+    "django.contrib.messages.middleware.MessageMiddleware",  
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",  
 ]
+
 
 ROOT_URLCONF = 'makeRecipe.urls'
 
@@ -77,10 +94,7 @@ WSGI_APPLICATION = 'makeRecipe.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    "default": env.db(default="sqlite:///db.sqlite3"),
 }
 
 
@@ -102,6 +116,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+LOGGING = {  
+    "version": 1,  
+    "disable_existing_loggers": False,  
+    "handlers": {"console": {"class": "logging.StreamHandler"}},  
+    "loggers": {"": {"handlers": ["console"], "level": "DEBUG"}},  
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -118,15 +140,25 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = env.str("STATIC_URL", default="/static/")  
+STATIC_ROOT = env.str("STATIC_ROOT", default=BASE_DIR / "staticfiles")
 
+
+# TODO: Evaluate if this is needed
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = DEBUG
+
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_ROOT = env("MEDIA_ROOT", default=BASE_DIR / "media")  
+MEDIA_URL = env("MEDIA_PATH", default="/media/")

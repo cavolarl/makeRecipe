@@ -28,3 +28,4 @@ django-bootstrap5
 whitenoise==6.9.0
 django-redis==5.4.0
 requests
+django-environ==0.12.0
