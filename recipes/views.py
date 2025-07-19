@@ -159,6 +159,30 @@ def ingredient_autocomplete(request):
     ingredients = ManagedIngredient.objects.filter(name__icontains=query).values('id', 'name')
     return JsonResponse(list(ingredients), safe=False)
 
+def find_or_create_ingredient(name):
+    """
+    Finds a ManagedIngredient by name or prepares data for creation.
+    Returns a dictionary with either the ingredient's ID or data for a new one.
+    """
+    try:
+        # First, try an exact match (case-insensitive)
+        ingredient = ManagedIngredient.objects.get(name__iexact=name)
+        return {'id': ingredient.id, 'name': ingredient.name, 'action': 'match'}
+    except ManagedIngredient.DoesNotExist:
+        # If no exact match, suggest creating a new one
+        return {'id': None, 'name': name, 'action': 'create'}
+
+def add_managed_ingredient_from_recipe(request):
+    if request.method == 'POST':
+        ingredient_name = request.POST.get('name')
+        if ingredient_name:
+            ingredient, created = ManagedIngredient.objects.get_or_create(
+                name__iexact=ingredient_name,
+                defaults={'name': ingredient_name}
+            )
+            return JsonResponse({'id': ingredient.id, 'name': ingredient.name})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
 def scrape_recipe(request):
     url = request.GET.get('url')
     if not url:
@@ -190,12 +214,13 @@ def scrape_recipe(request):
             else:
                 quantity = normalized_qty_text.strip()
 
-            # Try to find an existing ManagedIngredient or create a new one
-            managed_ingredient, created = ManagedIngredient.objects.get_or_create(
-                name__iexact=ing_text,
-                defaults={'name': ing_text}
-            )
-            ingredients.append({'name': managed_ingredient.id, 'quantity': quantity, 'unit': unit})
+            ingredient_data = find_or_create_ingredient(ing_text)
+            ingredients.append({
+                'original_name': ing_text,
+                'quantity': quantity,
+                'unit': unit,
+                'managed_ingredient': ingredient_data
+            })
 
         return JsonResponse({'ingredients': ingredients})
     except Exception as e:

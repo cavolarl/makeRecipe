@@ -31,6 +31,7 @@ class Ingredient(models.Model):
         ('krm', 'kryddmått'),
         ('tsk', 'tesked'),
         ('msk', 'matsked'),
+        ('st', 'styck'),
     ]
     name = models.ForeignKey(ManagedIngredient, on_delete=models.PROTECT, related_name='ingredients')
     quantity = models.FloatField()
