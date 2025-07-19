@@ -4,45 +4,27 @@ document.addEventListener('DOMContentLoaded', function() {
     let totalForms = document.querySelector('#id_ingredient_set-TOTAL_FORMS');
     const emptyForm = document.getElementById('empty-form').innerHTML;
 
-    addButton.addEventListener('click', function() {
-        const currentFormsCount = parseInt(totalForms.value);
-        const newFormHtml = emptyForm.replace(/__prefix__/g, currentFormsCount);
-        const newFormDiv = document.createElement('div');
-        newFormDiv.innerHTML = newFormHtml;
-
-        // Remove the hidden 'id' input field from the new form, as it's for a new object
-        const idInput = newFormDiv.querySelector(`[name$="-id"]`);
-        if (idInput) {
-            idInput.remove();
-        }
-
-        // Insert the new form before the add button
-        addButton.before(newFormDiv.firstElementChild);
-
-        totalForms.value = currentFormsCount + 1;
-        attachAutocompleteListeners(); // Attach listeners to new form
+    addIngredientButton.addEventListener('click', function() {
+        const totalFormsInput = document.getElementById('id_ingredient_set-TOTAL_FORMS');
+        let formIdx = parseInt(totalFormsInput.value);
+        
+        const newFormHtml = emptyFormTemplate.replace(/__prefix__/g, formIdx);
+        const newForm = document.createElement('div');
+        newForm.innerHTML = newFormHtml;
+        
+        formsetContainer.appendChild(newForm.firstElementChild);
+        totalFormsInput.value = formIdx + 1;
     });
 
-    // Event delegation for remove buttons
-    formsetContainer.addEventListener('click', function(event) {
-        if (event.target.classList.contains('remove-ingredient')) {
-            const formToRemove = event.target.closest('.ingredient-form');
+    // Remove ingredient form
+    formsetContainer.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-ingredient')) {
+            const formToRemove = e.target.closest('.ingredient-form');
             if (formToRemove) {
                 formToRemove.remove();
-                totalForms.value = parseInt(totalForms.value) - 1;
-
-                // Re-index forms after removal
-                const forms = document.querySelectorAll('.ingredient-form');
-                forms.forEach((form, index) => {
-                    form.querySelectorAll('*').forEach(element => {
-                        if (element.name) {
-                            element.name = element.name.replace(/-\d+-/, `-${index}-`);
-                        }
-                        if (element.id) {
-                            element.id = element.id.replace(/_\d+_/, `_${index}_`);
-                        }
-                    });
-                });
+                // Optional: Update total forms count if needed for formset validation
+                const totalFormsInput = document.getElementById('id_ingredient_set-TOTAL_FORMS');
+                totalFormsInput.value = parseInt(totalFormsInput.value) - 1;
             }
         }
     });

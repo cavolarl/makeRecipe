@@ -14,4 +14,5 @@ urlpatterns = [
     path('ingredients/delete/<int:pk>/', views.delete_managed_ingredient, name='delete_managed_ingredient'),
     path('ingredients/autocomplete/', views.ingredient_autocomplete, name='ingredient_autocomplete'),
     path('scrape-recipe/', views.scrape_recipe, name='scrape_recipe'),
+    path('add-managed-ingredient/', views.add_managed_ingredient_from_recipe, name='add_managed_ingredient_from_recipe'),
 ]

@@ -15,8 +15,37 @@
                     <button id="scrape-button" class="btn btn-primary" type="button">Scrape</button>
                 </div>
                 <div id="scraper-status" class="form-text mt-2"></div>
-            </div>
+        <div id="scraped-ingredients-container" class="mt-4"></div>
+    </div>
+</div>
+
+<!-- Scraped Ingredient Row Template -->
+<template id="scraped-ingredient-template">
+    <div class="row scraped-ingredient-row mb-2 align-items-center">
+        <div class="col-md-3">
+            <input type="text" class="form-control original-ingredient-name-input" placeholder="Original Ingredient Name">
         </div>
+        <div class="col-md-3">
+            <select class="form-select managed-ingredient-select">
+                <!-- Options will be populated by JS -->
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-sm btn-outline-primary create-new-managed-ingredient">Create New</button>
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control quantity-input" placeholder="Qty">
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control unit-input" placeholder="Unit">
+        </div>
+    </div>
+</template>
+
+<!-- Add to Recipe Button -->
+<div id="add-scraped-to-recipe-container" class="mt-3" style="display: none;">
+    <button id="add-scraped-to-recipe" type="button" class="btn btn-success">Add to Recipe Form</button>
+</div>
 
         <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
