@@ -15,7 +15,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Stage 2: Final image
-FROM python:3.12-slim-buster
+FROM python:3.13.5-slim
 
 WORKDIR /app
 
