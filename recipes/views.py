@@ -190,7 +190,12 @@ def scrape_recipe(request):
             else:
                 quantity = normalized_qty_text.strip()
 
-            ingredients.append({'name': ing_text, 'quantity': quantity, 'unit': unit})
+            # Try to find an existing ManagedIngredient or create a new one
+            managed_ingredient, created = ManagedIngredient.objects.get_or_create(
+                name__iexact=ing_text,
+                defaults={'name': ing_text}
+            )
+            ingredients.append({'name': managed_ingredient.id, 'quantity': quantity, 'unit': unit})
 
         return JsonResponse({'ingredients': ingredients})
     except Exception as e:

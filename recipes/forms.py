@@ -8,6 +8,8 @@ class RecipeForm(forms.ModelForm):
         fields = ['title', 'description', 'servings']
 
 class IngredientForm(forms.ModelForm):
+    name = forms.ModelChoiceField(queryset=ManagedIngredient.objects.all().order_by('category', 'name'), label="Ingredient")
+
     class Meta:
         model = Ingredient
         fields = ['name', 'quantity', 'unit']

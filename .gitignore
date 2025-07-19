@@ -26,8 +26,6 @@ share/python-wheels/
 MANIFEST
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -74,52 +72,52 @@ ipython_config.py
 # pyenv
 .python-version
 
-# PEP 582; used by PDM, PEP 582 compatible tools
+# PEP 582
 __pypackages__/
 
-# Celery stuff
+# Celery
 celerybeat-schedule
 celerybeat.pid
 
-# SageMath parsed files
+# SageMath
 *.sage.py
 
 # Environments
 .env
 .venv
-env/
-venv/
-/makeRecipe/secret.py
 ENV/
+env/
 env.bak/
+venv/
 venv.bak/
 
-# Spyder project settings
+# Secrets
+/makeRecipe/secret.py
+
+# IDEs / editors
+.idea/
+.vscode/
 .spyderproject
 .spyproject
-
-# Rope project settings
 .ropeproject
 
-# mkdocs documentation
+# mkdocs
 /site
 
-# mypy
+# Type checker / analyzer
 .mypy_cache/
 .dmypy.json
 dmypy.json
-
-# Pyre type checker
 .pyre/
-
-# pytype static analyzer
 .pytype/
 
-# Cython debug symbols
+# Cython
 cython_debug/
 
-# VSCode
-.vscode/
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
 
 # Docker
 postgres_data/
