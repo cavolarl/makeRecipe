@@ -11,8 +11,7 @@ class Recipe(models.Model):
 class ManagedIngredient(models.Model):
     name = models.CharField(max_length=200, unique=True)
     common_denonyms = models.JSONField(default=list, blank=True, help_text="List of common denonyms")
-    container_sizes = models.JSONField(default=list, blank=True, help_text="List of common container sizes in grams or ml")
-    weight_to_volume_conversion = models.FloatField(blank=True, null=True, help_text="Grams per milliliter (g/ml)")
+    weight_to_volume_conversion = models.FloatField(default=1.0, help_text="Grams per milliliter (g/ml)")
     category = models.CharField(max_length=100, blank=True)
     notes = models.TextField(blank=True)
 
@@ -32,6 +31,8 @@ class Ingredient(models.Model):
         ('tsk', 'tesked'),
         ('msk', 'matsked'),
         ('st', 'styck'),
+        ('nypa', 'nypa'),
+        ('klyfta', 'klyfta'),
     ]
     name = models.ForeignKey(ManagedIngredient, on_delete=models.PROTECT, related_name='ingredients')
     quantity = models.FloatField()
