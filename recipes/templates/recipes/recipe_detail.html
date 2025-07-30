@@ -14,7 +14,7 @@
         </ul>
 
         <a href="{% url 'scale_recipe' pk=recipe.pk %}" class="btn btn-primary me-2">Scale Recipe</a>
-        <a href="{% url 'edit_recipe' pk=recipe.pk %}" class="btn btn-info me-2">Edit Recipe</a>
-        <a href="{% url 'recipe_list' %}" class="btn btn-secondary">Back to Recipes</a>
+        <a href="{% url 'update_recipe' pk=recipe.pk %}" class="btn btn-info me-2">Edit Recipe</a>
+        <a href="{% url 'list_recipes' %}" class="btn btn-secondary">Back to Recipes</a>
     </div>
 {% endblock %}

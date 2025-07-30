@@ -32,4 +32,4 @@ class ShoppingListForm(forms.Form):
 class ManagedIngredientForm(forms.ModelForm):
     class Meta:
         model = ManagedIngredient
-        fields = ['name', 'common_denonyms', 'container_sizes', 'weight_to_volume_conversion', 'category', 'notes']
+        fields = ['name', 'common_denonyms', 'weight_to_volume_conversion', 'category', 'notes']

@@ -49,15 +49,15 @@ def normalize_quantity(text):
 
     return processed_text
 
-def recipe_list(request):
+def list_recipes(request):
     recipes = Recipe.objects.all()
     return render(request, 'recipes/recipe_list.html', {'recipes': recipes})
 
-def recipe_detail(request, pk):
+def view_recipe(request, pk):
     recipe = get_object_or_404(Recipe, pk=pk)
     return render(request, 'recipes/recipe_detail.html', {'recipe': recipe})
 
-def add_recipe(request):
+def create_recipe(request):
     if request.method == 'POST':
         form = RecipeForm(request.POST)
         formset = IngredientFormSet(request.POST)
@@ -65,13 +65,13 @@ def add_recipe(request):
             recipe = form.save()
             formset.instance = recipe
             formset.save()
-            return redirect('recipe_detail', pk=recipe.pk)
+            return redirect('view_recipe', pk=recipe.pk)
     else:
         form = RecipeForm()
         formset = IngredientFormSet()
     return render(request, 'recipes/add_recipe.html', {'form': form, 'formset': formset})
 
-def edit_recipe(request, pk):
+def update_recipe(request, pk):
     recipe = get_object_or_404(Recipe, pk=pk)
     if request.method == 'POST':
         form = RecipeForm(request.POST, instance=recipe)
@@ -79,28 +79,17 @@ def edit_recipe(request, pk):
         if form.is_valid() and formset.is_valid():
             form.save()
             formset.save()
-            return redirect('recipe_detail', pk=recipe.pk)
+            return redirect('view_recipe', pk=recipe.pk)
     else:
         form = RecipeForm(instance=recipe)
         formset = IngredientEditFormSet(instance=recipe)
     return render(request, 'recipes/add_recipe.html', {'form': form, 'formset': formset})
 
-def scale_recipe(request, pk):
-    recipe = get_object_or_404(Recipe, pk=pk)
-    if request.method == 'POST':
-        scaled_servings = int(request.POST['servings'])
-        scale_factor = scaled_servings / recipe.servings
-        for ingredient in recipe.ingredient_set.all():
-            ingredient.quantity *= scale_factor
-        recipe.servings = scaled_servings
-        return render(request, 'recipes/recipe_detail.html', {'recipe': recipe})
-    return render(request, 'recipes/scale_recipe.html', {'recipe': recipe})
-
 def delete_recipe(request, pk):
     recipe = get_object_or_404(Recipe, pk=pk)
     if request.method == 'POST':
         recipe.delete()
-        return redirect('recipe_list')
+        return redirect('list_recipes')
     return render(request, 'recipes/recipe_detail.html', {'recipe': recipe})
 
 def create_shopping_list(request):
@@ -137,6 +126,9 @@ def create_shopping_list(request):
     return render(request, 'recipes/shopping_list.html', {'form': form, 'shopping_list': shopping_list})
 
 def manage_ingredients(request):
+    """
+    View to show and manage ingredients.
+    """
     if request.method == 'POST':
         form = ManagedIngredientForm(request.POST)
         if form.is_valid():
@@ -147,14 +139,37 @@ def manage_ingredients(request):
     ingredients = ManagedIngredient.objects.all().order_by('name')
     return render(request, 'recipes/manage_ingredients.html', {'form': form, 'ingredients': ingredients})
 
+def update_managed_ingredient(request, pk):
+    """
+    Edits a specific ingredient.
+    """
+    ingredient = get_object_or_404(ManagedIngredient, pk=pk)
+    if request.method == 'POST':
+        form = ManagedIngredientForm(request.POST, instance=ingredient)
+        if form.is_valid():
+            form.save()
+            return redirect('manage_ingredients')
+    else:
+        form = ManagedIngredientForm(instance=ingredient)
+    return render(request, 'recipes/edit_managed_ingredient.html', {'form': form})
+
 def delete_managed_ingredient(request, pk):
+    """
+    Deletes a managed ingredient.
+    If the request method is POST, the ingredient is deleted and redirects to manage ingredients.
+    Otherwise, it redirects to manage ingredients without deleting.
+    """
     ingredient = get_object_or_404(ManagedIngredient, pk=pk)
     if request.method == 'POST':
         ingredient.delete()
         return redirect('manage_ingredients')
     return redirect('manage_ingredients')
 
-def ingredient_autocomplete(request):
+def autocomplete_ingredient(request):
+    """
+    Autocomplete for ingredients.
+    Returns a JSON response with ingredient names matching the query.
+    """
     query = request.GET.get('q', '')
     ingredients = ManagedIngredient.objects.filter(name__icontains=query).values('id', 'name')
     return JsonResponse(list(ingredients), safe=False)
@@ -172,7 +187,7 @@ def find_or_create_ingredient(name):
         # If no exact match, suggest creating a new one
         return {'id': None, 'name': name, 'action': 'create'}
 
-def add_managed_ingredient_from_recipe(request):
+def create_managed_ingredient_from_recipe(request):
     if request.method == 'POST':
         ingredient_name = request.POST.get('name')
         if ingredient_name:

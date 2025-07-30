@@ -1,0 +1,25 @@
+{% extends 'recipes/base.html' %}
+{% load recipes_tags %}
+
+{% block content %}
+<div class="container my-4">
+    <h1 class="mb-4">Edit Ingredient</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-3">
+                {{ field.label_tag }}
+                {{ field|add_class:"form-control" }}
+                {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{% url 'manage_ingredients' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

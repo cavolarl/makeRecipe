@@ -10,7 +10,7 @@
                     <div class="col">
                         <div class="card h-100">
                             <div class="card-body">
-                                <h5 class="card-title"><a href="{% url 'recipe_detail' pk=recipe.pk %}" class="text-decoration-none">{{ recipe.title }}</a></h5>
+                                <h5 class="card-title"><a href="{% url 'view_recipe' pk=recipe.pk %}" class="text-decoration-none">{{ recipe.title }}</a></h5>
                                 <p class="card-text">{{ recipe.description|truncatechars:100 }}</p>
                             </div>
                             <div class="card-footer d-flex justify-content-between align-items-center">
@@ -31,7 +31,7 @@
         {% endif %}
 
         <div class="mt-4">
-            <a href="{% url 'add_recipe' %}" class="btn btn-primary">Add New Recipe</a>
+            <a href="{% url 'create_recipe' %}" class="btn btn-primary">Add New Recipe</a>
         </div>
     </div>
 {% endblock %}
