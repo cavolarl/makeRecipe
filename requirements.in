@@ -13,3 +13,4 @@ requests
 django-environ
 beautifulsoup4
 django-debug-toolbar
+dj-database-url
