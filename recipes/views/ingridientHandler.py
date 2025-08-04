@@ -2,6 +2,7 @@ from recipes.models import ManagedIngredient
 from recipes.forms import ManagedIngredientForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from difflib import get_close_matches
 
 
 def manage_ingredients(request):
@@ -59,12 +60,20 @@ def find_or_create_ingredient(name):
     Returns a dictionary with either the ingredient's ID or data for a new one.
     """
     try:
-        # First, try an exact match (case-insensitive)
+        # Try exact match (case-insensitive)
         ingredient = ManagedIngredient.objects.get(name__iexact=name)
         return {'id': ingredient.id, 'name': ingredient.name, 'action': 'match'}
     except ManagedIngredient.DoesNotExist:
-        # If no exact match, suggest creating a new one
-        return {'id': None, 'name': name, 'action': 'create'}
+        # Get all ingredient names for fuzzy matching if no exact match found
+        all_names = ManagedIngredient.objects.values_list('name', flat=True)
+        close_matches = get_close_matches(name, all_names, n=1, cutoff=0.8)
+        if close_matches:
+            # If close match found, return that ingredient's info
+            ingredient = ManagedIngredient.objects.get(name=close_matches[0])
+            return {'id': ingredient.id, 'name': ingredient.name, 'action': 'match'}
+        else:
+            # No close match found, suggest creation
+            return {'id': None, 'name': name, 'action': 'create'}
 
 def create_managed_ingredient_from_recipe(request):
     if request.method == 'POST':

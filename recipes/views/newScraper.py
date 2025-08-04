@@ -1,35 +1,35 @@
 from playwright.sync_api import sync_playwright
+from .pages import SITE_CONFIGS
+from .parser import parse_ingredient
 import re
 
-recipe_pattern = re.compile(r"^https://www\.ica\.se/recept/.+-\d{6}/$")
-
-def find_all_recipe_links():
+def find_all_recipe_links(site_key):
     """
     Finds all recipe links on the current page.
     Returns a list of links that match the recipe pattern.
     """
+    config = SITE_CONFIGS[site_key]
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
-        page.goto("https://www.ica.se/recept/korv/stroganoff")  # fixed URL
-        hrefs = page.eval_on_selector_all("a", "elements => elements.map(e => e.href)")
-        links = [href for href in hrefs if recipe_pattern.match(href)]
+        page.goto(config["start_url"])
+        hrefs = page.eval_on_selector_all(config["link_selector"], config["href_extractor"])
+        links = [href for href in hrefs if config["recipe_pattern"].match(href)]
         browser.close()
         return links
 
-def find_ingridients_from_recipe(url):
+def find_ingridients_from_recipe(url, site_key):
     """
     Scrapes ingredients from a recipe page.
     Returns a list of ingredients found on the page.
     """
+    config = SITE_CONFIGS[site_key]
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
         page.goto(url)
-        ingredients = page.eval_on_selector_all("div.ingredients-list-group__card", 
-            "elements => elements.map(e => e.textContent.trim())")
+        ingredients = page.eval_on_selector_all(
+            config["ingredients_selector"], config["ingredients_extractor"]
+        )
         browser.close()
         return ingredients
-    
-recipelist = find_all_recipe_links()
-print(find_ingridients_from_recipe(recipelist[0]))
