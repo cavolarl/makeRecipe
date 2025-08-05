@@ -34,14 +34,14 @@ COPY --from=builder --chown=app:app /app/.venv /app/.venv
 # Copy source code
 COPY --chown=app:app . /app
 
+# Install Playwright and dependencies
+RUN playwright install --with-deps
+
 # Switch to non-root user
 USER app
 
 # Add venv to PATH for direct execution (no uv needed)
 ENV PATH="/app/.venv/bin:$PATH"
-
-# Install Playwright and dependencies
-RUN playwright install --with-deps
 
 # Expose port 8000
 EXPOSE 8000
