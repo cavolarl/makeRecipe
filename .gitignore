@@ -129,3 +129,6 @@ docker-compose.override.yml
 
 # Devcontainer
 .devcontainer/
+
+# Node
+/node_modules

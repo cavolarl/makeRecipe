@@ -3,67 +3,108 @@
 {% load recipes_tags %}
 
 {% block content %}
-    <div class="container my-4">
-        <h1 class="mb-4">Create Shopping List</h1>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-4">Create Shopping List</h1>
 
-        <form method="post" class="mb-4">
-            {% csrf_token %}
-            <div class="mb-3">
-                {{ form.recipes.label_tag }}
-                <div class="form-check">
-                    {% for checkbox in form.recipes %}
-                        <div class="form-check">
-                            {{ checkbox.tag }}
-                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">
-                                {{ checkbox.choice_label }}
-                            </label>
+    <form method="post" id="shoppingListForm">
+        {% csrf_token %}
+        <input type="hidden" name="selected_recipes" id="selected_recipes">
+
+        <div class="flex space-x-4">
+            <!-- Available Recipes -->
+            <div class="w-1/2">
+                <h2 class="text-lg font-semibold mb-2">Available Recipes</h2>
+                <div id="available-recipes" class="bg-gray-100 p-4 rounded-lg min-h-[200px] border border-gray-300" ondragover="event.preventDefault()" ondrop="drop(event)">
+                    {% for recipe in form.recipes.field.queryset %}
+                        <div id="recipe-{{ recipe.id }}" class="bg-white p-2 rounded-md shadow-sm mb-2 cursor-move" draggable="true" ondragstart="drag(event)">
+                            {{ recipe.title }}
                         </div>
                     {% endfor %}
                 </div>
             </div>
-            <div class="mb-3">
-                {{ form.num_guests.label_tag }}
-                {{ form.num_guests|add_class:"form-control" }}
-            </div>
-            <button type="submit" class="btn btn-primary">Generate Shopping List</button>
-        </form>
 
-        {% if shopping_list %}
-            <h2 class="mt-5 mb-3">Your Shopping List</h2>
-            <ul class="list-group" id="shopping-list-container">
-                {% for item in shopping_list %}
-                    <li class="list-group-item" 
-                        data-original-quantity="{{ item.quantity }}" 
-                        data-original-unit="{{ item.unit }}"
-                        data-conversion-factor="{{ item.managed_ingredient.weight_to_volume_conversion|default_if_none:'0' }}">
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="quantity">{{ item.quantity|floatformat:2 }}</span>
-                                <span class="unit">{{ item.unit }}</span>
-                                <span class="name">{{ item.name }}</span>
-                                
-                                {% if item.managed_ingredient.container_sizes %}
-                                    <small class="text-muted ms-2">
-                                        (Containers: {{ item.managed_ingredient.container_sizes|join:", " }}g/ml)
-                                    </small>
-                                {% endif %}
-                            </div>
+            <!-- Selected Recipes -->
+            <div class="w-1/2">
+                <h2 class="text-lg font-semibold mb-2">Selected Recipes</h2>
+                <div id="selected-recipes-container" class="bg-gray-100 p-4 rounded-lg min-h-[200px] border border-gray-300" ondragover="event.preventDefault()" ondrop="drop(event)">
+                    <!-- Dropped recipes will appear here -->
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            {{ form.num_guests.label_tag }}
+            {{ form.num_guests|add_class:"form-control w-full md:w-1/4" }}
+        </div>
+
+        <button type="submit" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Generate Shopping List
+        </button>
+    </form>
+
+    {% if shopping_list %}
+        <h2 class="mt-5 mb-3">Your Shopping List</h2>
+        <ul class="list-group" id="shopping-list-container">
+            {% for item in shopping_list %}
+                <li class="list-group-item" 
+                    data-original-quantity="{{ item.quantity }}" 
+                    data-original-unit="{{ item.unit }}"
+                    data-conversion-factor="{{ item.managed_ingredient.weight_to_volume_conversion|default_if_none:'0' }}">
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="quantity">{{ item.quantity|floatformat:2 }}</span>
+                            <span class="unit">{{ item.unit }}</span>
+                            <span class="name">{{ item.name }}</span>
                             
-                            {% if item.managed_ingredient.weight_to_volume_conversion %}
-                            <div class="btn-group btn-group-sm" role="group">
-                                <button type="button" class="btn btn-outline-secondary convert-unit" data-target-unit-type="volume">Volume</button>
-                                <button type="button" class="btn btn-outline-secondary convert-unit" data-target-unit-type="weight">Weight</button>
-                            </div>
+                            {% if item.managed_ingredient.container_sizes %}
+                                <small class="text-muted ms-2">
+                                    (Containers: {{ item.managed_ingredient.container_sizes|join:", " }}g/ml)
+                                </small>
                             {% endif %}
                         </div>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
+                        
+                        {% if item.managed_ingredient.weight_to_volume_conversion %}
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-secondary convert-unit" data-target-unit-type="volume">Volume</button>
+                            <button type="button" class="btn btn-outline-secondary convert-unit" data-target-unit-type="weight">Weight</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
 
-    <script>
+<script>
+    function drag(event) {
+        event.dataTransfer.setData("text", event.target.id);
+    }
+
+    function drop(event) {
+        event.preventDefault();
+        var data = event.dataTransfer.getData("text");
+        var target = event.target;
+        // Ensure we are dropping into a valid container
+        if (target.id === 'available-recipes' || target.id === 'selected-recipes-container') {
+            target.appendChild(document.getElementById(data));
+        } else if (target.parentElement.id === 'available-recipes' || target.parentElement.id === 'selected-recipes-container') {
+            // If dropped on a recipe item, append to the container
+            target.parentElement.appendChild(document.getElementById(data));
+        }
+    }
+
+    document.getElementById('shoppingListForm').addEventListener('submit', function(event) {
+        var selectedRecipesContainer = document.getElementById('selected-recipes-container');
+        var recipeElements = selectedRecipesContainer.children;
+        var recipeIds = [];
+        for (var i = 0; i < recipeElements.length; i++) {
+            recipeIds.push(recipeElements[i].id.replace('recipe-', ''));
+        }
+        document.getElementById('selected_recipes').value = recipeIds.join(',');
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         const shoppingListContainer = document.getElementById('shopping-list-container');
 
@@ -135,6 +176,5 @@
             });
         }
     });
-    </script>
-
+</script>
 {% endblock %}
