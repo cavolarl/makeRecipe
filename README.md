@@ -22,9 +22,10 @@
 
 2. **Choose your package manager and follow the steps:**
 
-    ### Using `uv`
+   ### Using `uv`
 
     a. **Create a virtual environment and install dependencies**:
+
     ```bash
     # Create the virtual environment
     uv venv
@@ -39,9 +40,10 @@
     uv pip sync requirements.txt
     ```
 
-    ### Using `pip`
+   ### Using `pip`
 
     a. **Create and activate a virtual environment**:
+
     ```bash
     python -m venv venv
     # On Windows:
@@ -51,6 +53,7 @@
     ```
 
     b. **Install dependencies**:
+
     ```bash
     pip install -r requirements.txt
     ```

@@ -18,7 +18,7 @@ def parse_ingredient(raw):
     raw = re.sub(r"\s*\([^)]*\)", "", raw)
 
     # Remove prefixes like "ca", "ungefär", "cirka", etc.
-    raw = re.sub(r"^(ca|ungefär|cirka|drygt|hackad|skuren|finskuren)\s+", "", raw, flags=re.IGNORECASE)
+    raw = re.sub(r"^(ca|ungefär|cirka|drygt)\s+", "", raw, flags=re.IGNORECASE)
 
     # Remove adjectives like "finhackad", "skuren", etc.
     raw = re.sub(r"^(finhackad(e)?|skuren|hackad(e)?|dubbla|enkla|tärnad(e)?|strimlad(e)?|finskuren|skurna)\s+", "", raw, flags=re.IGNORECASE)

@@ -44,6 +44,21 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => {
                 statusDiv.textContent = `Error: ${error}`;
             });
+        
+        fetch(`/scrape-recipe-details/?url=${encodeURIComponent(url)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error(`Error: ${data.error}`);
+                    return;
+                }
+                if(data.title) document.getElementById('id_title').value = data.title;
+                if(data.description) document.getElementById('id_description').value = data.description;
+                if(data.servings) document.getElementById('id_servings').value = data.servings;
+            })
+            .catch(error => {
+                console.error(`Error: ${error}`);
+            });
     });
 
     function populateScrapedIngredients(ingredients) {

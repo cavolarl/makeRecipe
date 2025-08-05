@@ -25,6 +25,9 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+# Local debugging
+errormessage.txt
+
 # PyInstaller
 *.manifest
 *.spec
