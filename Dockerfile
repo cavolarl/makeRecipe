@@ -35,7 +35,7 @@ COPY --from=builder --chown=app:app /app/.venv /app/.venv
 COPY --chown=app:app . /app
 
 # Install Playwright and dependencies
-RUN playwright install --with-deps
+RUN /app/.venv/bin/playwright install --with-deps
 
 # Switch to non-root user
 USER app
