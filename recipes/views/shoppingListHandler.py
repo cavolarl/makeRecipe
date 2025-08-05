@@ -9,7 +9,8 @@ def create_shopping_list(request):
     if request.method == 'POST':
         form = ShoppingListForm(request.POST)
         if form.is_valid():
-            selected_recipes = form.cleaned_data['recipes']
+            recipe_ids = request.POST.get('selected_recipes', '').split(',')
+            selected_recipes = Recipe.objects.filter(id__in=recipe_ids)
             num_guests = form.cleaned_data['num_guests']
             
             merged_ingredients = {}

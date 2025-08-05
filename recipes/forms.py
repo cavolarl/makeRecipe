@@ -21,7 +21,8 @@ class ShoppingListForm(forms.Form):
     recipes = forms.ModelMultipleChoiceField(
         queryset=Recipe.objects.all(),
         widget=forms.CheckboxSelectMultiple,
-        label="Select Recipes"
+        label="Select Recipes",
+        required=False
     )
     num_guests = forms.IntegerField(
         min_value=1,
