@@ -13,6 +13,10 @@ __pycache__/
 *.pyd
 venv/
 .venv/
+.cache/
+
+# Node.js
+node_modules/
 
 # Other
 .idea/
