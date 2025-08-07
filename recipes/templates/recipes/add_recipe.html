@@ -1,178 +1,161 @@
 {% extends 'recipes/base.html' %}
-
 {% load recipes_tags %}
 
 {% block content %}
-    <div class="container">
-        <h2 class="my-4">Add New Recipe</h2>
+<div class="max-w-7xl mx-auto px-4">
 
-        <!-- Help Section -->
-         <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Help</h5>
-                <p class="card-text">
-                The below form accepts recipes from 
-                <a href="https://www.ica.se/recept/" target="_blank" rel="noopener noreferrer">https://www.ica.se/recept/</a>
+    <!-- Help Section -->
+    <div class="card bg-base-100 shadow-md mb-6">
+        <div class="card-body">
+            <h2 class="card-title">Help</h2>
+            <p>
+                The form accepts recipes from 
+                <a href="https://www.ica.se/recept/" target="_blank" class="link link-primary">ICA</a>
                 and 
-                <a href="https://www.koket.se/recept/" target="_blank" rel="noopener noreferrer">https://www.koket.se/recept/</a>.
-                </p>
+                <a href="https://www.koket.se/recept/" target="_blank" class="link link-primary">Koket</a>.
+            </p>
+            <p>Paste the URL below and click the "Scrape" button.</p>
+        </div>
+    </div>
 
-                <p class="card-text">Paste the URL in the input field below and click the blue "Scrape" button.</p>
-                <p class="card-text">Then review the ingredients and add them to your recipe form.</p>
-                <p class="card-text">Press the create new button to create a new ingridient if you can not find it in the list.</p>
+    <!-- Scraper Section -->
+    <div class="card bg-base-100 shadow-md mb-6">
+        <div class="card-body">
+            <h2 class="card-title">Scrape Recipe from URL</h2>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <input id="recipe-url" type="text" placeholder="Enter recipe URL..." class="input input-bordered w-full" />
+                <button id="scrape-button" class="btn btn-primary">Scrape</button>
             </div>
-        </div>
-
-        
-        <!-- Scraper Section -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Scrape Recipe from URL</h5>
-                <div class="input-group">
-                    <input type="text" id="recipe-url" class="form-control" placeholder="Enter recipe URL...">
-                    <button id="scrape-button" class="btn btn-primary" type="button">Scrape</button>
-                </div>
-                <div id="scraper-status" class="form-text mt-2"></div>
-        <div id="scraped-ingredients-container" class="mt-4"></div>
-    </div>
-</div>
-
-<!-- Scraped Ingredient Row Template -->
-<template id="scraped-ingredient-template">
-    <div class="row scraped-ingredient-row mb-2 align-items-center">
-        <div class="col-md-3">
-            <input type="text" class="form-control original-ingredient-name-input" placeholder="Original Ingredient Name">
-        </div>
-        <div class="col-md-3">
-            <select class="form-select managed-ingredient-select">
-                <!-- Options will be populated by JS -->
-            </select>
-        </div>
-        <div class="col-md-2">
-            <button type="button" class="btn btn-sm btn-outline-primary create-new-managed-ingredient">Create New</button>
-        </div>
-        <div class="col-md-2">
-            <input type="text" class="form-control quantity-input" placeholder="Qty">
-        </div>
-        <div class="col-md-2">
-            <input type="text" class="form-control unit-input" placeholder="Unit">
+            <div id="scraper-status" class="mt-4 hidden"></div>
         </div>
     </div>
-</template>
 
-<!-- Add to Recipe Button -->
-<div id="add-scraped-to-recipe-container" class="mt-3" style="display: none;">
-    <button id="add-scraped-to-recipe" type="button" class="btn btn-success">Add to Recipe Form</button>
-</div>
-
-        <form method="post" class="needs-validation" novalidate>
-            {% csrf_token %}
-            <div class="mb-3">
-                {% for field in form %}
-                    <div class="mb-3">
-                        {{ field.label_tag }}
-                        {{ field|add_class:"form-control" }}
-                        {% if field.help_text %}
-                            <div class="form-text">{{ field.help_text }}</div>
-                        {% endif %}
-                        {% for error in field.errors %}
-                            <div class="invalid-feedback d-block">{{ error }}</div>
+    <!-- Two Column Layout -->
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Left Column - Recipe Details -->
+            <div class="space-y-4">
+                <div class="card bg-base-100 shadow-md">
+                    <div class="card-body">
+                        <h3 class="card-title text-xl mb-4">Recipe Details</h3>
+                        
+                        {% for field in form %}
+                            <div class="form-control mb-4">
+                                {{ field.label_tag }}
+                                {{ field|add_class:"input input-bordered" }}
+                                {% if field.help_text %}
+                                    <span class="text-xs text-gray-500">{{ field.help_text }}</span>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <span class="text-red-500 text-sm">{{ error }}</span>
+                                {% endfor %}
+                            </div>
                         {% endfor %}
                     </div>
-                {% endfor %}
+                </div>
             </div>
 
-            <h3 class="mt-4 mb-3">Ingredients</h3>
-            <div id="ingredient-formset-container">
-                {{ formset.management_form }}
-                {% for form in formset %}
-                    <div class="ingredient-form mb-3 p-3 border rounded bg-light">
-                        {{ form.id }}
-                        <div class="mb-3">
-                            {{ form.name.label_tag }}
-                            {{ form.name }}
-                            <input type="text" class="form-control autocomplete-ingredient" placeholder="Start typing ingredient name..." value="{% if form.instance.name %}{{ form.instance.name.name }}{% endif %}">
-                            {% if form.name.help_text %}
-                                <div class="form-text">{{ form.name.help_text }}</div>
-                            {% endif %}
-                            {% for error in form.name.errors %}
-                                <div class="invalid-feedback d-block">{{ error }}</div>
+            <!-- Right Column - Ingredients -->
+            <div class="space-y-4">
+                <div class="card bg-base-100 shadow-md">
+                    <div class="card-body">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="card-title text-xl">Ingredients</h3>
+                            <button type="button" id="add-ingredient" class="btn btn-secondary btn-sm">Add Ingredient</button>
+                        </div>
+                        
+                        <div id="ingredient-formset-container" class="max-h-96 overflow-y-auto pr-2">
+                            {{ formset.management_form }}
+                            {% for form in formset %}
+                                <div class="ingredient-form border border-base-300 rounded-lg mb-3 p-3 bg-base-50">
+                                    {{ form.id }}
+                                    <div class="grid grid-cols-1 gap-2">
+                                        <div class="form-control">
+                                            {{ form.name.label_tag }}
+                                            {{ form.name }}
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <input type="text" class="input input-bordered input-sm flex-grow autocomplete-ingredient" placeholder="Start typing..." value="{% if form.instance.name %}{{ form.instance.name.name }}{% endif %}">
+                                                <button type="button" class="btn btn-outline btn-sm create-new-ingredient-btn">New</button>
+                                            </div>
+                                            {% for error in form.name.errors %}
+                                                <span class="text-red-500 text-sm">{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div class="form-control">
+                                                {{ form.quantity.label_tag }}
+                                                {{ form.quantity|add_class:"input input-bordered input-sm" }}
+                                                {% for error in form.quantity.errors %}
+                                                    <span class="text-red-500 text-sm">{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="form-control">
+                                                {{ form.unit.label_tag }}
+                                                {{ form.unit|add_class:"input input-bordered input-sm" }}
+                                                {% for error in form.unit.errors %}
+                                                    <span class="text-red-500 text-sm">{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between items-center mt-2">
+                                            {% if form.instance.pk %}
+                                                <label class="label cursor-pointer">
+                                                    {{ form.DELETE }}
+                                                    <span class="label-text ml-2 text-sm">Delete</span>
+                                                </label>
+                                            {% else %}
+                                                <div></div>
+                                            {% endif %}
+                                            <button type="button" class="btn btn-error btn-xs remove-ingredient">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
                             {% endfor %}
                         </div>
-                        <div class="mb-3">
-                            {{ form.quantity.label_tag }}
-                            {{ form.quantity|add_class:"form-control" }}
-                            {% if form.quantity.help_text %}
-                                <div class="form-text">{{ form.quantity.help_text }}</div>
-                            {% endif %}
-                            {% for error in form.quantity.errors %}
-                                <div class="invalid-feedback d-block">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                        <div class="mb-3">
-                            {{ form.unit.label_tag }}
-                            {{ form.unit|add_class:"form-control" }}
-                            {% if form.unit.help_text %}
-                                <div class="form-text">{{ form.unit.help_text }}</div>
-                            {% endif %}
-                            {% for error in form.unit.errors %}
-                                <div class="invalid-feedback d-block">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                        {% if form.instance.pk %}
-                            <div class="form-check mt-2">
-                                {{ form.DELETE }}
-                                <label class="form-check-label" for="{{ form.DELETE.id_for_label }}">Delete</label>
-                            </div>
-                        {% endif %}
-                        <button type="button" class="btn btn-danger btn-sm remove-ingredient">Remove</button>
                     </div>
-                {% endfor %}
+                </div>
             </div>
+        </div>
 
-            <div id="empty-form" style="display: none;">
-                <div class="ingredient-form mb-3 p-3 border rounded bg-light">
-                    <div class="mb-3">
+        <!-- Empty Form Template -->
+        <div id="empty-form" class="hidden">
+            <div class="ingredient-form border border-base-300 rounded-lg mb-3 p-3 bg-base-50">
+                <div class="grid grid-cols-1 gap-2">
+                    <div class="form-control">
                         {{ formset.empty_form.name.label_tag }}
                         {{ formset.empty_form.name }}
-                        <input type="text" class="form-control autocomplete-ingredient" placeholder="Start typing ingredient name...">
-                        {% if formset.empty_form.name.help_text %}
-                            <div class="form-text">{{ formset.empty_form.name.help_text }}</div>
-                        {% endif %}
-                        {% for error in formset.empty_form.name.errors %}
-                            <div class="invalid-feedback d-block">{{ error }}</div>
-                        {% endfor %}
+                        <div class="flex items-center gap-2 mt-1">
+                            <input type="text" class="input input-bordered input-sm flex-grow autocomplete-ingredient" placeholder="Start typing..." />
+                            <button type="button" class="btn btn-outline btn-sm create-new-ingredient-btn">New</button>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        {{ formset.empty_form.quantity.label_tag }}
-                        {{ formset.empty_form.quantity|add_class:"form-control" }}
-                        {% if formset.empty_form.quantity.help_text %}
-                            <div class="form-text">{{ formset.empty_form.quantity.help_text }}</div>
-                        {% endif %}
-                        {% for error in formset.empty_form.quantity.errors %}
-                            <div class="invalid-feedback d-block">{{ error }}</div>
-                        {% endfor %}
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="form-control">
+                            {{ formset.empty_form.quantity.label_tag }}
+                            {{ formset.empty_form.quantity|add_class:"input input-bordered input-sm" }}
+                        </div>
+                        <div class="form-control">
+                            {{ formset.empty_form.unit.label_tag }}
+                            {{ formset.empty_form.unit|add_class:"input input-bordered input-sm" }}
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        {{ formset.empty_form.unit.label_tag }}
-                        {{ formset.empty_form.unit|add_class:"form-control" }}
-                        {% if formset.empty_form.unit.help_text %}
-                            <div class="form-text">{{ formset.empty_form.unit.help_text }}</div>
-                        {% endif %}
-                        {% for error in formset.empty_form.unit.errors %}
-                            <div class="invalid-feedback d-block">{{ error }}</div>
-                        {% endfor %}
+                    <div class="flex justify-end mt-2">
+                        <button type="button" class="btn btn-error btn-xs remove-ingredient">Remove</button>
                     </div>
-                    <button type="button" class="btn btn-danger btn-sm remove-ingredient">Remove</button>
                 </div>
             </div>
+        </div>
 
-            <button type="button" id="add-ingredient" class="btn btn-secondary mt-3">Add Ingredient</button>
-            <button type="submit" class="btn btn-primary mt-3 ms-2">Add Recipe</button>
-        </form>
-    </div>
+        <!-- Submit Button -->
+        <div class="mt-6 flex justify-center">
+            <button type="submit" class="btn btn-primary btn-lg">Add Recipe</button>
+        </div>
+    </form>
+</div>
 
-    {% load static %}
-    <script src="{% static 'js/add_recipe.js' %}"></script>
-    <script src="{% static 'js/scrape.js' %}"></script>
+{% load static %}
+<script src="{% static 'js/recipe_form.js' %}"></script>
+<script src="{% static 'js/autocomplete.js' %}"></script>
 {% endblock %}

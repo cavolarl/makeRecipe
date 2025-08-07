@@ -1,54 +1,58 @@
 {% extends 'recipes/base.html' %}
-
 {% load recipes_tags %}
 
 {% block content %}
-    <div class="container my-4">
-        <h1 class="mb-4">Manage Ingredients</h1>
+<div class="max-w-5xl mx-auto px-4 py-6">
+    <h1 class="text-3xl font-bold mb-6">Manage Ingredients</h1>
 
-        <div class="row">
-            <div class="col-md-6">
-                <h2 class="mb-3">Add New Ingredient</h2>
-                <form method="post" class="mb-4">
-                    {% csrf_token %}
-                    {% for field in form %}
-                        <div class="mb-3">
-                            {{ field.label_tag }}
-                            {{ field|add_class:"form-control" }}
-                            {% if field.help_text %}
-                                <small class="form-text text-muted">{{ field.help_text }}</small>
-                            {% endif %}
-                            {% for error in field.errors %}
-                                <div class="invalid-feedback d-block">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-primary">Add Ingredient</button>
-                </form>
-            </div>
-            <div class="col-md-6">
-                <h2 class="mb-3">Existing Ingredients</h2>
-                {% if ingredients %}
-                    <ul class="list-group">
-                        {% for ingredient in ingredients %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                {{ ingredient.name }}
-                                <div class="btn-group" role="group">
-                                    <a href="{% url 'update_managed_ingredient' pk=ingredient.pk %}" class="btn btn-secondary btn-sm">Edit</a>
-                                    <form action="{% url 'delete_managed_ingredient' pk=ingredient.pk %}" method="post" onsubmit="return confirm('Are you sure you want to delete \'{{ ingredient.name }}\''? This will affect all recipes using this ingredient.');">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                    </form>
-                                </div>
-                            </li>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Add New Ingredient -->
+        <div>
+            <h2 class="text-xl font-semibold mb-4">Add New Ingredient</h2>
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                {% for field in form %}
+                    <div>
+                        <label class="label">
+                            <span class="label-text">{{ field.label }}</span>
+                        </label>
+                        {{ field|add_class:"input input-bordered w-full" }}
+                        {% if field.help_text %}
+                            <p class="text-sm text-gray-500 mt-1">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <p class="text-error text-sm mt-1">{{ error }}</p>
                         {% endfor %}
-                    </ul>
-                {% else %}
-                    <div class="alert alert-info" role="alert">
-                        No managed ingredients found. Add some above!
                     </div>
-                {% endif %}
-            </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Add Ingredient</button>
+            </form>
+        </div>
+
+        <!-- Existing Ingredients -->
+        <div>
+            <h2 class="text-xl font-semibold mb-4">Existing Ingredients</h2>
+            {% if ingredients %}
+                <ul class="space-y-2">
+                    {% for ingredient in ingredients %}
+                        <li class="flex items-center justify-between bg-base-100 border border-base-300 rounded p-3 shadow-sm">
+                            <span>{{ ingredient.name }}</span>
+                            <div class="flex gap-2">
+                                <a href="{% url 'update_managed_ingredient' pk=ingredient.pk %}" class="btn btn-sm btn-secondary">Edit</a>
+                                <form action="{% url 'delete_managed_ingredient' pk=ingredient.pk %}" method="post" onsubmit="return confirm('Are you sure you want to delete \'{{ ingredient.name }}\'? This will affect all recipes using this ingredient.');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-error">Delete</button>
+                                </form>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="alert alert-info mt-2">
+                    No managed ingredients found. Add some above!
+                </div>
+            {% endif %}
         </div>
     </div>
+</div>
 {% endblock %}

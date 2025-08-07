@@ -3,30 +3,20 @@
 <html>
 <head>
     <title>Recipe App</title>
-    {% load django_bootstrap5 %}
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
+    {% load tailwind_tags %}
+    {% tailwind_css %}
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
-    <style>
-        nav {
-            background-color: #f8f8f8;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        nav a {
-            margin-right: 15px;
-            text-decoration: none;
-            color: #333;
-        }
-    </style>
 </head>
-<body>
-    <nav>
-        <a href="{% url 'list_recipes' %}">Home</a>
-        <a href="{% url 'create_recipe' %}">Add Recipe</a>
-        <a href="{% url 'create_shopping_list' %}">Shopping List</a>
-        <a href="{% url 'manage_ingredients' %}">Ingredients</a>
+<body class="bg-white text-gray-800">
+    <nav class="bg-gray-100 px-4 py-3 border-b border-gray-200">
+        <div class="flex space-x-6">
+            <a href="{% url 'list_recipes' %}" class="text-gray-700 hover:text-black">Home</a>
+            <a href="{% url 'create_recipe' %}" class="text-gray-700 hover:text-black">Add Recipe</a>
+            <a href="{% url 'create_shopping_list' %}" class="text-gray-700 hover:text-black">Shopping List</a>
+            <a href="{% url 'manage_ingredients' %}" class="text-gray-700 hover:text-black">Ingredients</a>
+        </div>
     </nav>
+
     {% block content %}
     {% endblock %}
 </body>

@@ -23,7 +23,7 @@ class Ingredient(models.Model):
     UNIT_CHOICES = [
         ('g', 'gram'),
         ('kg', 'kilogram'),
-        ('liter', 'liter'),
+        ('l', 'liter'),
         ('dl', 'deciliter'),
         ('cl', 'centiliter'),
         ('ml', 'milliliter'),
@@ -31,8 +31,6 @@ class Ingredient(models.Model):
         ('tsk', 'tesked'),
         ('msk', 'matsked'),
         ('st', 'styck'),
-        ('nypa', 'nypa'),
-        ('klyfta', 'klyfta'),
     ]
     name = models.ForeignKey(ManagedIngredient, on_delete=models.PROTECT, related_name='ingredients')
     quantity = models.FloatField()

@@ -45,7 +45,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "django_bootstrap5",
     "tailwind",
+    "tailwindtheme",
 ]
+
+TAILWIND_APP_NAME = 'tailwindtheme'
+
+# NOTE: If on windows (local for me) set the npm_bin_path manually
+if os.getenv('DJANGO_ENV') == 'local':
+    NPM_BIN_PATH = "C:/Program Files/nodejs/npm.cmd"
+else:
+    # Assume docker or default environment where npm is in PATH
+    NPM_BIN_PATH = "npm"
 
 MIDDLEWARE = [  
     "django.middleware.security.SecurityMiddleware",  
