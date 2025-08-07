@@ -20,7 +20,7 @@
     cd makeRecipe
     ```
 
-2. **Choose your package manager and follow the steps:**
+2. **Follow the steps:**
 
    ### Using `uv`
 
@@ -40,41 +40,23 @@
     uv pip sync requirements.txt
     ```
 
-   ### Using `pip`
-
-    a. **Create and activate a virtual environment**:
-
-    ```bash
-    python -m venv venv
-    # On Windows:
-    .\venv\Scripts\activate
-    # On macOS/Linux:
-    source venv/bin/activate
-    ```
-
-    b. **Install dependencies**:
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
 3. **Apply database migrations**:
 
     ```bash
-    python manage.py makemigrations
-    python manage.py migrate
+    uv run manage.py makemigrations
+    uv run manage.py migrate
     ```
 
 4. **Collect static files**:
 
     ```bash
-    python manage.py collectstatic
+    uv run manage.py collectstatic
     ```
 
 5. **Run the development server**:
 
     ```bash
-    python manage.py runserver
+    uv run manage.py runserver
     ```
 
 6. **Access the application**: Open your web browser and go to `http://127.0.0.1:8000/recipes/`

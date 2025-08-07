@@ -142,6 +142,18 @@ wheels = [
 ]
 
 [[package]]
+name = "django-tailwind"
+version = "4.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1e/75/f244c147c6fe04a565f36721cf04d8b36c8bae8bdd17ec1656603d71ce05/django_tailwind-4.2.0.tar.gz", hash = "sha256:60bae45a9981bdf3ebaaa4a8e588533327c90e5857a64f57c26a39b7f234ac0e", size = 11734, upload-time = "2025-07-08T20:56:45.185Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b8/f5/f91497da51098d7a25ee7409a49d24c880e3af3664da0872dbe238a7174b/django_tailwind-4.2.0-py3-none-any.whl", hash = "sha256:ff40ccb263faefac555fbaa340d6014f2b07fee6be2c8d5659f2cd63dbce02e9", size = 19225, upload-time = "2025-07-08T20:56:43.908Z" },
+]
+
+[[package]]
 name = "greenlet"
 version = "3.2.3"
 source = { registry = "https://pypi.org/simple" }
@@ -208,6 +220,7 @@ dependencies = [
     { name = "django-debug-toolbar" },
     { name = "django-environ" },
     { name = "django-redis" },
+    { name = "django-tailwind" },
     { name = "gunicorn" },
     { name = "packaging" },
     { name = "playwright" },
@@ -229,6 +242,7 @@ requires-dist = [
     { name = "django-debug-toolbar", specifier = ">=6.0.0" },
     { name = "django-environ", specifier = ">=0.12.0" },
     { name = "django-redis", specifier = ">=6.0.0" },
+    { name = "django-tailwind", specifier = ">=4.2.0" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "packaging", specifier = ">=25.0" },
     { name = "playwright", specifier = ">=1.54.0" },
