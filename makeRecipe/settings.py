@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django_bootstrap5",
     "tailwind",
     "tailwindtheme",
+    "widget_tweaks",
 ]
 
 TAILWIND_APP_NAME = 'tailwindtheme'

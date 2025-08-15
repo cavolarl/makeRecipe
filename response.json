@@ -1,0 +1,161 @@
+{
+	"ingredients": [
+		{
+			"original_name": "smör, kallt",
+			"quantity": {
+				"source": "125.0",
+				"parsedValue": 125
+			},
+			"unit": "",
+			"managed_ingredient": {
+				"id": null,
+				"name": "smör, kallt",
+				"action": "create"
+			}
+		},
+		{
+			"original_name": "vetemjöl",
+			"quantity": {
+				"source": "3.0",
+				"parsedValue": 3
+			},
+			"unit": "dl",
+			"managed_ingredient": {
+				"id": 1,
+				"name": "Vetemjöl",
+				"action": "match"
+			}
+		},
+		{
+			"original_name": "vatten",
+			"quantity": {
+				"source": "1.0",
+				"parsedValue": 1
+			},
+			"unit": "msk",
+			"managed_ingredient": {
+				"id": 60,
+				"name": "Vatten",
+				"action": "match"
+			}
+		},
+		{
+			"original_name": "ägg",
+			"quantity": {
+				"source": "3.0",
+				"parsedValue": 3
+			},
+			"unit": "",
+			"managed_ingredient": {
+				"id": null,
+				"name": "ägg",
+				"action": "create"
+			}
+		},
+		{
+			"original_name": "vispgrädde",
+			"quantity": {
+				"source": "3.0",
+				"parsedValue": 3
+			},
+			"unit": "dl",
+			"managed_ingredient": {
+				"id": 38,
+				"name": "vispgrädde",
+				"action": "match"
+			}
+		},
+		{
+			"original_name": "Bong Touch of Taste Kantarellfond",
+			"quantity": 0.5,
+			"unit": "msk",
+			"managed_ingredient": {
+				"id": null,
+				"name": "Bong Touch of Taste Kantarellfond",
+				"action": "create"
+			}
+		},
+		{
+			"original_name": "Västerbottensost, riven",
+			"quantity": {
+				"source": "200.0",
+				"parsedValue": 200
+			},
+			"unit": "g",
+			"managed_ingredient": {
+				"id": null,
+				"name": "Västerbottensost, riven",
+				"action": "create"
+			}
+		},
+		{
+			"original_name": "salt",
+			"quantity": "",
+			"unit": "",
+			"managed_ingredient": {
+				"id": 6,
+				"name": "Salt",
+				"action": "match"
+			}
+		},
+		{
+			"original_name": "svartpeppar",
+			"quantity": "",
+			"unit": "",
+			"managed_ingredient": {
+				"id": 7,
+				"name": "Svartpeppar",
+				"action": "match"
+			}
+		},
+		{
+			"original_name": "mozzarellaost",
+			"quantity": {
+				"source": "1.0",
+				"parsedValue": 1
+			},
+			"unit": "förp",
+			"managed_ingredient": {
+				"id": null,
+				"name": "mozzarellaost",
+				"action": "create"
+			}
+		},
+		{
+			"original_name": "kantareller",
+			"quantity": {
+				"source": "400.0",
+				"parsedValue": 400
+			},
+			"unit": "g",
+			"managed_ingredient": {
+				"id": null,
+				"name": "kantareller",
+				"action": "create"
+			}
+		},
+		{
+			"original_name": "schalottenlökar, hackad",
+			"quantity": {
+				"source": "2.0",
+				"parsedValue": 2
+			},
+			"unit": "",
+			"managed_ingredient": {
+				"id": null,
+				"name": "schalottenlökar, hackad",
+				"action": "create"
+			}
+		},
+		{
+			"original_name": "smör, att steka i",
+			"quantity": "",
+			"unit": "",
+			"managed_ingredient": {
+				"id": null,
+				"name": "smör, att steka i",
+				"action": "create"
+			}
+		}
+	]
+}

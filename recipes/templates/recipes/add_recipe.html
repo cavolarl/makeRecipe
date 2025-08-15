@@ -3,35 +3,52 @@
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4">
-
     <!-- Help Section -->
     <div class="card bg-base-100 shadow-md mb-6">
         <div class="card-body">
-            <h2 class="card-title">Help</h2>
+            <h2 class="card-title">Recipe Scraper</h2>
             <p>
-                The form accepts recipes from 
+                Import recipes from 
                 <a href="https://www.ica.se/recept/" target="_blank" class="link link-primary">ICA</a>
                 and 
                 <a href="https://www.koket.se/recept/" target="_blank" class="link link-primary">Koket</a>.
             </p>
-            <p>Paste the URL below and click the "Scrape" button.</p>
+            <p>Paste the URL below and click "Import Recipe".</p>
         </div>
     </div>
 
-    <!-- Scraper Section -->
+    <!-- URL Import Section -->
     <div class="card bg-base-100 shadow-md mb-6">
         <div class="card-body">
-            <h2 class="card-title">Scrape Recipe from URL</h2>
-            <div class="flex flex-col sm:flex-row gap-2">
-                <input id="recipe-url" type="text" placeholder="Enter recipe URL..." class="input input-bordered w-full" />
-                <button id="scrape-button" class="btn btn-primary">Scrape</button>
+            <h3 class="card-title">Import from URL</h3>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input 
+                    id="recipeUrl" 
+                    type="url" 
+                    placeholder="https://www.ica.se/recept/..." 
+                    class="input input-bordered flex-1"
+                />
+                <button 
+                    id="importBtn" 
+                    type="button"
+                    class="btn btn-primary">
+                    <span class="loading loading-spinner loading-sm hidden" id="importSpinner"></span>
+                    <span id="importBtnText">Import Recipe</span>
+                </button>
             </div>
-            <div id="scraper-status" class="mt-4 hidden"></div>
+            
+            <!-- Status Messages -->
+            <div id="statusContainer" class="mt-4 hidden">
+                <div id="statusAlert" role="alert" class="alert">
+                    <span id="statusIcon"></span>
+                    <span id="statusMessage"></span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Two Column Layout -->
-    <form method="post" novalidate>
+    <!-- Recipe Form -->
+    <form method="post" novalidate id="recipeForm">
         {% csrf_token %}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
@@ -41,18 +58,29 @@
                     <div class="card-body">
                         <h3 class="card-title text-xl mb-4">Recipe Details</h3>
                         
-                        {% for field in form %}
-                            <div class="form-control mb-4">
-                                {{ field.label_tag }}
-                                {{ field|add_class:"input input-bordered" }}
-                                {% if field.help_text %}
-                                    <span class="text-xs text-gray-500">{{ field.help_text }}</span>
-                                {% endif %}
-                                {% for error in field.errors %}
-                                    <span class="text-red-500 text-sm">{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% endfor %}
+                        <!-- Recipe Title -->
+                        <div class="form-control mb-4">
+                            <label class="label" for="id_title">
+                                <span class="label-text">Title</span>
+                            </label>
+                            <input type="text" id="id_title" name="title" class="input input-bordered" />
+                        </div>
+
+                        <!-- Recipe Description -->
+                        <div class="form-control mb-4">
+                            <label class="label" for="id_description">
+                                <span class="label-text">Description</span>
+                            </label>
+                            <textarea id="id_description" name="description" class="textarea textarea-bordered" rows="3"></textarea>
+                        </div>
+
+                        <!-- Servings -->
+                        <div class="form-control mb-4">
+                            <label class="label" for="id_servings">
+                                <span class="label-text">Servings</span>
+                            </label>
+                            <input type="number" id="id_servings" name="servings" class="input input-bordered" min="1" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -63,99 +91,188 @@
                     <div class="card-body">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="card-title text-xl">Ingredients</h3>
-                            <button type="button" id="add-ingredient" class="btn btn-secondary btn-sm">Add Ingredient</button>
+                            <button 
+                                type="button" 
+                                id="addIngredientBtn" 
+                                class="btn btn-secondary btn-sm">
+                                Add Ingredient
+                            </button>
                         </div>
                         
-                        <div id="ingredient-formset-container" class="max-h-96 overflow-y-auto pr-2">
-                            {{ formset.management_form }}
-                            {% for form in formset %}
-                                <div class="ingredient-form border border-base-300 rounded-lg mb-3 p-3 bg-base-50">
-                                    {{ form.id }}
-                                    <div class="grid grid-cols-1 gap-2">
-                                        <div class="form-control">
-                                            {{ form.name.label_tag }}
-                                            {{ form.name }}
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <input type="text" class="input input-bordered input-sm flex-grow autocomplete-ingredient" placeholder="Start typing..." value="{% if form.instance.name %}{{ form.instance.name.name }}{% endif %}">
-                                                <button type="button" class="btn btn-outline btn-sm create-new-ingredient-btn">New</button>
-                                            </div>
-                                            {% for error in form.name.errors %}
-                                                <span class="text-red-500 text-sm">{{ error }}</span>
-                                            {% endfor %}
-                                        </div>
-                                        <div class="grid grid-cols-2 gap-2">
-                                            <div class="form-control">
-                                                {{ form.quantity.label_tag }}
-                                                {{ form.quantity|add_class:"input input-bordered input-sm" }}
-                                                {% for error in form.quantity.errors %}
-                                                    <span class="text-red-500 text-sm">{{ error }}</span>
-                                                {% endfor %}
-                                            </div>
-                                            <div class="form-control">
-                                                {{ form.unit.label_tag }}
-                                                {{ form.unit|add_class:"input input-bordered input-sm" }}
-                                                {% for error in form.unit.errors %}
-                                                    <span class="text-red-500 text-sm">{{ error }}</span>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-between items-center mt-2">
-                                            {% if form.instance.pk %}
-                                                <label class="label cursor-pointer">
-                                                    {{ form.DELETE }}
-                                                    <span class="label-text ml-2 text-sm">Delete</span>
-                                                </label>
-                                            {% else %}
-                                                <div></div>
-                                            {% endif %}
-                                            <button type="button" class="btn btn-error btn-xs remove-ingredient">Remove</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
+                        <!-- Ingredients Container -->
+                        <div id="ingredientsContainer" class="space-y-3 max-h-96 overflow-y-auto">
+                            <!-- Management form for Django formset -->
+                            <input type="hidden" id="id_ingredient_set-TOTAL_FORMS" name="ingredient_set-TOTAL_FORMS" value="0">
+                            <input type="hidden" id="id_ingredient_set-INITIAL_FORMS" name="ingredient_set-INITIAL_FORMS" value="0">
+                            <input type="hidden" id="id_ingredient_set-MIN_NUM_FORMS" name="ingredient_set-MIN_NUM_FORMS" value="0">
+                            <input type="hidden" id="id_ingredient_set-MAX_NUM_FORMS" name="ingredient_set-MAX_NUM_FORMS" value="1000">
+                            
+                            <!-- Existing ingredient forms will be populated here -->
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Empty Form Template -->
-        <div id="empty-form" class="hidden">
-            <div class="ingredient-form border border-base-300 rounded-lg mb-3 p-3 bg-base-50">
-                <div class="grid grid-cols-1 gap-2">
-                    <div class="form-control">
-                        {{ formset.empty_form.name.label_tag }}
-                        {{ formset.empty_form.name }}
-                        <div class="flex items-center gap-2 mt-1">
-                            <input type="text" class="input input-bordered input-sm flex-grow autocomplete-ingredient" placeholder="Start typing..." />
-                            <button type="button" class="btn btn-outline btn-sm create-new-ingredient-btn">New</button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="form-control">
-                            {{ formset.empty_form.quantity.label_tag }}
-                            {{ formset.empty_form.quantity|add_class:"input input-bordered input-sm" }}
-                        </div>
-                        <div class="form-control">
-                            {{ formset.empty_form.unit.label_tag }}
-                            {{ formset.empty_form.unit|add_class:"input input-bordered input-sm" }}
-                        </div>
-                    </div>
-                    <div class="flex justify-end mt-2">
-                        <button type="button" class="btn btn-error btn-xs remove-ingredient">Remove</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Submit Button -->
-        <div class="mt-6 flex justify-center">
-            <button type="submit" class="btn btn-primary btn-lg">Add Recipe</button>
+        <div class="mt-8 flex justify-center">
+            <button type="submit" class="btn btn-primary btn-lg">
+                Save Recipe
+            </button>
         </div>
     </form>
+
+    <!-- Hidden Template for New Ingredient Forms -->
+    <template id="ingredientFormTemplate">
+        <div class="ingredient-form border border-base-300 rounded-lg p-4 bg-base-50">
+            <div class="grid grid-cols-1 gap-3">
+                <!-- Ingredient Name -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Ingredient Name</span>
+                    </label>
+                    <select name="ingredient_set-__prefix__-name" id="id_ingredient_set-__prefix__-name" class="select select-bordered" style="display: none;">
+                        <option value="">---------</option>
+                    </select>
+                    <div class="flex items-center gap-2 mt-2">
+                        <input 
+                            type="text" 
+                            class="ingredient-autocomplete input input-bordered input-sm flex-1" 
+                            placeholder="Start typing ingredient name..."
+                        />
+                        <button 
+                            type="button" 
+                            class="btn btn-outline btn-sm create-ingredient-btn">
+                            Create New
+                        </button>
+                    </div>
+                    <!-- Autocomplete suggestions will appear here -->
+                    <div class="suggestions-container relative"></div>
+                </div>
+                
+                <!-- Quantity and Unit -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Quantity</span>
+                        </label>
+                        <input type="text" name="ingredient_set-__prefix__-quantity" id="id_ingredient_set-__prefix__-quantity" class="input input-bordered input-sm" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Unit</span>
+                        </label>
+                        <input type="text" name="ingredient_set-__prefix__-unit" id="id_ingredient_set-__prefix__-unit" class="input input-bordered input-sm" />
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex justify-between items-center">
+                    <div class="form-control">
+                        <label class="label cursor-pointer">
+                            <input type="checkbox" name="ingredient_set-__prefix__-DELETE" id="id_ingredient_set-__prefix__-DELETE" class="checkbox checkbox-sm">
+                            <span class="label-text ml-2 text-sm">Mark for deletion</span>
+                        </label>
+                    </div>
+                    <button 
+                        type="button" 
+                        class="btn btn-error btn-sm remove-ingredient-btn">
+                        Remove
+                    </button>
+                </div>
+                
+                <!-- Hidden ID field -->
+                <input type="hidden" name="ingredient_set-__prefix__-id" id="id_ingredient_set-__prefix__-id">
+            </div>
+        </div>
+    </template>
 </div>
 
 {% load static %}
-<script src="{% static 'js/recipe_form.js' %}"></script>
-<script src="{% static 'js/autocomplete.js' %}"></script>
+<!-- Load ONLY the new JavaScript files -->
+<script src="{% static 'js/new_recipe_manager.js' %}"></script>
+<script src="{% static 'js/new_ingredient_autocomplete.js' %}"></script>
+<script src="{% static 'js/new_recipe_scraper.js' %}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== CHECKING CLASS AVAILABILITY ===');
+    
+    // Check if classes exist
+    console.log('RecipeManager exists:', typeof RecipeManager !== 'undefined');
+    console.log('IngredientAutocomplete exists:', typeof IngredientAutocomplete !== 'undefined');
+    console.log('RecipeScraper exists:', typeof RecipeScraper !== 'undefined');
+    
+    // If any are missing, show error and stop
+    if (typeof RecipeManager === 'undefined') {
+        console.error('RecipeManager class not found! Make sure new_recipe_manager.js is loaded.');
+        return;
+    }
+    
+    if (typeof IngredientAutocomplete === 'undefined') {
+        console.error('IngredientAutocomplete class not found! Make sure new_ingredient_autocomplete.js is loaded.');
+        return;
+    }
+    
+    if (typeof RecipeScraper === 'undefined') {
+        console.error('RecipeScraper class not found! Make sure new_recipe_scraper.js is loaded.');
+        return;
+    }
+    
+    console.log('=== INITIALIZING RECIPE MODULES ===');
+    
+    // Debug: Check if all required elements exist
+    const requiredElements = {
+        'recipeUrl': document.getElementById('recipeUrl'),
+        'importBtn': document.getElementById('importBtn'),
+        'importSpinner': document.getElementById('importSpinner'),
+        'importBtnText': document.getElementById('importBtnText'),
+        'statusContainer': document.getElementById('statusContainer'),
+        'statusAlert': document.getElementById('statusAlert'),
+        'statusIcon': document.getElementById('statusIcon'),
+        'statusMessage': document.getElementById('statusMessage'),
+        'ingredientsContainer': document.getElementById('ingredientsContainer'),
+        'addIngredientBtn': document.getElementById('addIngredientBtn'),
+        'totalFormsInput': document.getElementById('id_ingredient_set-TOTAL_FORMS'),
+        'template': document.getElementById('ingredientFormTemplate')
+    };
+    
+    console.log('Element check:');
+    Object.entries(requiredElements).forEach(([name, element]) => {
+        console.log(`- ${name}:`, !!element);
+        if (!element) {
+            console.error(`MISSING ELEMENT: ${name}`);
+        }
+    });
+    
+    try {
+        // Initialize all modules
+        console.log('Initializing RecipeManager...');
+        const recipeManager = new RecipeManager();
+        
+        console.log('Initializing IngredientAutocomplete...');
+        const ingredientAutocomplete = new IngredientAutocomplete();
+        
+        console.log('Initializing RecipeScraper...');
+        const recipeScraper = new RecipeScraper(recipeManager);
+        
+        // Connect the modules
+        console.log('Connecting modules...');
+        recipeManager.setAutocomplete(ingredientAutocomplete);
+        
+        console.log('=== INITIALIZATION COMPLETE ===');
+        
+        // Add global access for debugging
+        window.recipeManager = recipeManager;
+        window.ingredientAutocomplete = ingredientAutocomplete;
+        window.recipeScraper = recipeScraper;
+        
+    } catch (error) {
+        console.error('=== INITIALIZATION FAILED ===');
+        console.error('Error:', error);
+        console.error('Stack:', error.stack);
+    }
+});
+</script>
+
 {% endblock %}

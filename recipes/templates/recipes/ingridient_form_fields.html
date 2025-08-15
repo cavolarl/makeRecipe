@@ -1,0 +1,67 @@
+<!-- Ingredient Form Fields Template -->
+<div class="grid grid-cols-1 gap-3">
+    <!-- Ingredient Name -->
+    <div class="form-control">
+        <label class="label">
+            <span class="label-text">{{ form.name.label }}</span>
+        </label>
+        {{ form.name }}
+        <div class="flex items-center gap-2 mt-2">
+            <input 
+                type="text" 
+                class="ingredient-autocomplete input input-bordered input-sm flex-1" 
+                placeholder="Start typing ingredient name..."
+                value="{% if form.instance.name %}{{ form.instance.name.name }}{% endif %}"
+            />
+            <button 
+                type="button" 
+                class="btn btn-outline btn-sm create-ingredient-btn">
+                Create New
+            </button>
+        </div>
+        <!-- Autocomplete suggestions will appear here -->
+        <div class="suggestions-container relative"></div>
+        {% for error in form.name.errors %}
+            <span class="text-red-500 text-sm">{{ error }}</span>
+        {% endfor %}
+    </div>
+    
+    <!-- Quantity and Unit -->
+    <div class="grid grid-cols-2 gap-3">
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">{{ form.quantity.label }}</span>
+            </label>
+            {{ form.quantity|add_class:"input input-bordered input-sm" }}
+            {% for error in form.quantity.errors %}
+                <span class="text-red-500 text-sm">{{ error }}</span>
+            {% endfor %}
+        </div>
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text">{{ form.unit.label }}</span>
+            </label>
+            {{ form.unit|add_class:"input input-bordered input-sm" }}
+            {% for error in form.unit.errors %}
+                <span class="text-red-500 text-sm">{{ error }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Actions -->
+    <div class="flex justify-between items-center">
+        <div class="form-control">
+            {% if form.DELETE %}
+                <label class="label cursor-pointer">
+                    {{ form.DELETE }}
+                    <span class="label-text ml-2 text-sm">Mark for deletion</span>
+                </label>
+            {% endif %}
+        </div>
+        <button 
+            type="button" 
+            class="btn btn-error btn-sm remove-ingredient-btn">
+            Remove
+        </button>
+    </div>
+</div>
