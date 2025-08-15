@@ -44,6 +44,13 @@ class RecipeManager {
                     this.createNewIngredient(e.target);
                 }
             });
+
+            // Event delegation for seasoning checkbox changes
+            this.ingredientsContainer.addEventListener('change', (e) => {
+                if (e.target.classList.contains('seasoning-checkbox')) {
+                    this.handleSeasoningCheckbox(e.target);
+                }
+            });
         }
     }
 
@@ -207,20 +214,43 @@ class RecipeManager {
         const formElement = removeButton.closest('.ingredient-form');
         if (!formElement) return;
 
-        // Check if this is an existing record (has DELETE field)
-        const deleteInput = formElement.querySelector('input[name$="-DELETE"]');
-        if (deleteInput) {
-            // Mark for deletion and hide
-            deleteInput.checked = true;
-            formElement.style.display = 'none';
-        } else {
-            // Remove entirely and update form count
-            formElement.remove();
-            const currentCount = this.getCurrentFormCount();
-            this.updateFormCount(Math.max(0, currentCount - 1));
-        }
+        // Simply remove the form entirely since we no longer use DELETE fields
+        formElement.remove();
+        const currentCount = this.getCurrentFormCount();
+        this.updateFormCount(Math.max(0, currentCount - 1));
 
         console.log('Removed ingredient form');
+    }
+
+    /**
+     * Handle seasoning checkbox changes
+     */
+    handleSeasoningCheckbox(checkbox) {
+        const formElement = checkbox.closest('.ingredient-form');
+        if (!formElement) return;
+
+        const quantityInput = formElement.querySelector('input[name$="-quantity"]');
+        const unitInput = formElement.querySelector('input[name$="-unit"]');
+
+        if (checkbox.checked) {
+            // Mark as seasoning - set default values
+            if (quantityInput && !quantityInput.value.trim()) {
+                quantityInput.value = '5';
+            }
+            if (unitInput && !unitInput.value.trim()) {
+                unitInput.value = 'g';
+            }
+            
+            // Add visual indication
+            formElement.classList.add('seasoning-ingredient');
+            
+            console.log('Marked ingredient as seasoning with default 5g');
+        } else {
+            // Unmark as seasoning - remove visual indication
+            formElement.classList.remove('seasoning-ingredient');
+            
+            console.log('Unmarked ingredient as seasoning');
+        }
     }
 
     /**

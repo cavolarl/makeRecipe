@@ -1,140 +1,148 @@
 {% extends 'recipes/base.html' %}
 
-{% load recipes_tags %}
-
 {% block content %}
-    <div class="container my-4">
-        <h1 class="mb-4">Create Shopping List</h1>
+<div class="container mx-auto my-8 px-4">
+    <h1 class="text-3xl font-bold mb-6">Create Shopping List</h1>
 
-        <form method="post" class="mb-4">
-            {% csrf_token %}
-            <div class="mb-3">
-                {{ form.recipes.label_tag }}
-                <div class="form-check">
-                    {% for checkbox in form.recipes %}
-                        <div class="form-check">
-                            {{ checkbox.tag }}
-                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">
-                                {{ checkbox.choice_label }}
-                            </label>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="mb-3">
-                {{ form.num_guests.label_tag }}
-                {{ form.num_guests|add_class:"form-control" }}
-            </div>
-            <button type="submit" class="btn btn-primary">Generate Shopping List</button>
-        </form>
+    <!-- Form -->
+    <form method="post" class="space-y-6 bg-white p-6 rounded-lg shadow">
+        {% csrf_token %}
 
-        {% if shopping_list %}
-            <h2 class="mt-5 mb-3">Your Shopping List</h2>
-            <ul class="list-group" id="shopping-list-container">
-                {% for item in shopping_list %}
-                    <li class="list-group-item" 
-                        data-original-quantity="{{ item.quantity }}" 
-                        data-original-unit="{{ item.unit }}"
-                        data-conversion-factor="{{ item.managed_ingredient.weight_to_volume_conversion|default_if_none:'0' }}">
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="quantity">{{ item.quantity|floatformat:2 }}</span>
-                                <span class="unit">{{ item.unit }}</span>
-                                <span class="name">{{ item.name }}</span>
-                                
-                                {% if item.managed_ingredient.container_sizes %}
-                                    <small class="text-muted ms-2">
-                                        (Containers: {{ item.managed_ingredient.container_sizes|join:", " }}g/ml)
-                                    </small>
-                                {% endif %}
-                            </div>
-                            
-                            {% if item.managed_ingredient.weight_to_volume_conversion %}
-                            <div class="btn-group btn-group-sm" role="group">
-                                <button type="button" class="btn btn-outline-secondary convert-unit" data-target-unit-type="volume">Volume</button>
-                                <button type="button" class="btn btn-outline-secondary convert-unit" data-target-unit-type="weight">Weight</button>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </li>
+        <!-- Recipes checkboxes -->
+        <div>
+            <label class="block mb-2 font-medium text-gray-700">{{ form.recipes.label }}</label>
+            <div class="flex flex-col gap-2">
+                {% for checkbox in form.recipes %}
+                    <label for="{{ checkbox.id_for_label }}" class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" 
+                               name="{{ checkbox.name }}" 
+                               value="{{ checkbox.choice_value }}" 
+                               id="{{ checkbox.id_for_label }}" 
+                               class="checkbox checkbox-primary"
+                               {% if checkbox.choice_value in form.recipes.value %}checked{% endif %}>
+                        <span>{{ checkbox.choice_label }}</span>
+                    </label>
                 {% endfor %}
-            </ul>
-        {% endif %}
-    </div>
+            </div>
+        </div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const shoppingListContainer = document.getElementById('shopping-list-container');
+        <!-- Number of guests -->
+        <div>
+            <label for="{{ form.num_guests.id_for_label }}" class="block mb-2 font-medium text-gray-700">
+                {{ form.num_guests.label }}
+            </label>
+            <input type="number" 
+                   name="{{ form.num_guests.name }}" 
+                   id="{{ form.num_guests.id_for_label }}" 
+                   value="{{ form.num_guests.value|default_if_none:'' }}"
+                   class="input input-bordered w-full">
+        </div>
 
-        if (shoppingListContainer) {
-            shoppingListContainer.addEventListener('click', function(event) {
-                if (event.target.classList.contains('convert-unit')) {
-                    const button = event.target;
-                    const listItem = button.closest('.list-group-item');
-                    const targetUnitType = button.dataset.targetUnitType;
+        <!-- Submit button -->
+        <div>
+            <button type="submit" class="btn btn-primary">Generate Shopping List</button>
+        </div>
+    </form>
 
-                    const originalQuantity = parseFloat(listItem.dataset.originalQuantity);
-                    const originalUnit = listItem.dataset.originalUnit;
-                    const conversionFactor = parseFloat(listItem.dataset.conversionFactor);
-
-                    const quantitySpan = listItem.querySelector('.quantity');
-                    const unitSpan = listItem.querySelector('.unit');
-
-                    const isWeightUnit = ['g', 'kg'].includes(originalUnit.toLowerCase());
-                    const isVolumeUnit = ['ml', 'l', 'liter', 'dl', 'cl', 'tsk', 'msk', 'krm'].includes(originalUnit.toLowerCase());
-
-                    if (conversionFactor === 0) {
-                        alert('No conversion factor available for this ingredient.');
-                        return;
-                    }
-
-                    let newQuantity = originalQuantity;
-                    let newUnit = originalUnit;
-
-                    // Convert to base units (g or ml) first for simplicity
-                    let baseQuantity = originalQuantity;
-                    // Weight to base (g)
-                    if (originalUnit.toLowerCase() === 'kg') baseQuantity *= 1000;
-                    // Volume to base (ml)
-                    if (originalUnit.toLowerCase() === 'l' || originalUnit.toLowerCase() === 'liter') baseQuantity *= 1000;
-                    if (originalUnit.toLowerCase() === 'dl') baseQuantity *= 100;
-                    if (originalUnit.toLowerCase() === 'cl') baseQuantity *= 10;
-                    if (originalUnit.toLowerCase() === 'msk') baseQuantity *= 15;
-                    if (originalUnit.toLowerCase() === 'tsk') baseQuantity *= 5;
-                    if (originalUnit.toLowerCase() === 'krm') baseQuantity *= 1;
-
-
-                    if (targetUnitType === 'weight' && isVolumeUnit) {
-                        // Convert from volume (ml) to weight (g)
-                        newQuantity = baseQuantity * conversionFactor;
-                        newUnit = 'g';
-                    } else if (targetUnitType === 'volume' && isWeightUnit) {
-                        // Convert from weight (g) to volume (ml)
-                        newQuantity = baseQuantity / conversionFactor;
-                        newUnit = 'ml';
-                    } else {
-                        // Already the correct type, or no conversion needed, revert to original
-                        newQuantity = originalQuantity;
-                        newUnit = originalUnit;
-                    }
+    <!-- Shopping list display -->
+    {% if shopping_list %}
+        <h2 class="text-2xl font-semibold mt-10 mb-4">Your Shopping List</h2>
+        <ul class="space-y-3" id="shopping-list-container">
+            {% for item in shopping_list %}
+                <li class="p-4 bg-white rounded-lg shadow flex justify-between items-center"
+                    data-original-quantity="{{ item.quantity }}" 
+                    data-original-unit="{{ item.unit }}"
+                    data-conversion-factor="{{ item.managed_ingredient.weight_to_volume_conversion|default_if_none:'0' }}">
                     
-                    // Logic to select a "nice" unit (e.g., >1000g -> kg)
-                    if (newUnit === 'g' && newQuantity >= 1000) {
-                        newQuantity /= 1000;
-                        newUnit = 'kg';
-                    }
-                    if (newUnit === 'ml' && newQuantity >= 1000) {
-                        newQuantity /= 1000;
-                        newUnit = 'l';
-                    }
+                    <div>
+                        <span class="quantity font-medium">{{ item.quantity|floatformat:2 }}</span>
+                        <span class="unit">{{ item.unit }}</span>
+                        <span class="name">{{ item.name }}</span>
 
-                    quantitySpan.textContent = newQuantity.toFixed(2).replace(/\.00$/, '');
-                    unitSpan.textContent = newUnit;
+                        {% if item.managed_ingredient.container_sizes %}
+                            <small class="text-gray-400 ml-2">
+                                (Containers: {{ item.managed_ingredient.container_sizes|join:", " }}g/ml)
+                            </small>
+                        {% endif %}
+                    </div>
+
+                    {% if item.managed_ingredient.weight_to_volume_conversion %}
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline btn-sm convert-unit" data-target-unit-type="volume">Volume</button>
+                            <button type="button" class="btn btn-outline btn-sm convert-unit" data-target-unit-type="weight">Weight</button>
+                        </div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+
+<!-- Unit conversion script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const shoppingListContainer = document.getElementById('shopping-list-container');
+
+    if (shoppingListContainer) {
+        shoppingListContainer.addEventListener('click', function(event) {
+            if (event.target.classList.contains('convert-unit')) {
+                const button = event.target;
+                const listItem = button.closest('.list-group-item, li');
+                const targetUnitType = button.dataset.targetUnitType;
+
+                const originalQuantity = parseFloat(listItem.dataset.originalQuantity);
+                const originalUnit = listItem.dataset.originalUnit;
+                const conversionFactor = parseFloat(listItem.dataset.conversionFactor);
+
+                const quantitySpan = listItem.querySelector('.quantity');
+                const unitSpan = listItem.querySelector('.unit');
+
+                const isWeightUnit = ['g', 'kg'].includes(originalUnit.toLowerCase());
+                const isVolumeUnit = ['ml', 'l', 'liter', 'dl', 'cl', 'tsk', 'msk', 'krm'].includes(originalUnit.toLowerCase());
+
+                if (conversionFactor === 0) {
+                    alert('No conversion factor available for this ingredient.');
+                    return;
                 }
-            });
-        }
-    });
-    </script>
 
+                let newQuantity = originalQuantity;
+                let newUnit = originalUnit;
+
+                // Convert to base units (g or ml)
+                let baseQuantity = originalQuantity;
+                if (originalUnit.toLowerCase() === 'kg') baseQuantity *= 1000;
+                if (['l', 'liter'].includes(originalUnit.toLowerCase())) baseQuantity *= 1000;
+                if (originalUnit.toLowerCase() === 'dl') baseQuantity *= 100;
+                if (originalUnit.toLowerCase() === 'cl') baseQuantity *= 10;
+                if (originalUnit.toLowerCase() === 'msk') baseQuantity *= 15;
+                if (originalUnit.toLowerCase() === 'tsk') baseQuantity *= 5;
+                if (originalUnit.toLowerCase() === 'krm') baseQuantity *= 1;
+
+                if (targetUnitType === 'weight' && isVolumeUnit) {
+                    newQuantity = baseQuantity * conversionFactor;
+                    newUnit = 'g';
+                } else if (targetUnitType === 'volume' && isWeightUnit) {
+                    newQuantity = baseQuantity / conversionFactor;
+                    newUnit = 'ml';
+                } else {
+                    newQuantity = originalQuantity;
+                    newUnit = originalUnit;
+                }
+
+                if (newUnit === 'g' && newQuantity >= 1000) {
+                    newQuantity /= 1000;
+                    newUnit = 'kg';
+                }
+                if (newUnit === 'ml' && newQuantity >= 1000) {
+                    newQuantity /= 1000;
+                    newUnit = 'l';
+                }
+
+                quantitySpan.textContent = newQuantity.toFixed(2).replace(/\.00$/, '');
+                unitSpan.textContent = newUnit;
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
